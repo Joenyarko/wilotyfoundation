@@ -1,0 +1,783 @@
+<?php
+// views/modals.php
+// Beautiful glassmorphic modals for Donations, Volunteers, and Event Registrations
+?>
+
+<!-- ── PAYSTACK JS ── -->
+<script src="https://js.paystack.co/v1/inline.js"></script>
+<script>
+  const PAYSTACK_PUBLIC_KEY = '<?= defined("PAYSTACK_PUBLIC_KEY") ? PAYSTACK_PUBLIC_KEY : "" ?>';
+</script>
+
+<!-- ── VOLUNTEER MODAL ── -->
+<div id="volunteerModal" class="modal-overlay">
+  <div class="modal-card">
+    <button class="modal-close" onclick="closeModal('volunteerModal')">&times;</button>
+    <div class="modal-header">
+      <h2>Become a Volunteer</h2>
+      <p>Join our mission and make a real difference in the community</p>
+    </div>
+    <form id="volunteerForm" onsubmit="submitVolunteerForm(event)">
+      <div class="form-scroll-area">
+      <div class="form-group">
+        <label for="vol_name">Full Name</label>
+        <input type="text" id="vol_name" name="name" required placeholder="John Doe" pattern="[A-Za-z\s\-\']+" title="Names should only contain letters, spaces, hyphens, or apostrophes.">
+      </div>
+      <div class="form-group">
+        <label for="vol_email">Email Address</label>
+        <input type="email" id="vol_email" name="email" required placeholder="john@example.com">
+      </div>
+      <div class="form-group">
+        <label for="vol_phone">Phone Number</label>
+        <input type="tel" id="vol_phone" name="phone" required placeholder="+233 24 123 4567" pattern="[\+0-9\s\-]+" title="Phone number should only contain digits, spaces, plus signs or hyphens.">
+      </div>
+      <div class="form-group">
+        <label for="vol_location">Location / City</label>
+        <input type="text" id="vol_location" name="location" required placeholder="Accra, Ghana">
+      </div>
+      <div class="form-group">
+        <label for="vol_skills">Key Skills</label>
+        <input type="text" id="vol_skills" name="skills" required placeholder="e.g. Teaching, Health Support, Social Work">
+      </div>
+      <div class="form-group">
+        <label for="vol_why">Why do you want to volunteer?</label>
+        <textarea id="vol_why" name="why_volunteer" rows="3" required placeholder="Tell us about your motivation..."></textarea>
+      </div>
+      </div> <!-- End form-scroll-area -->
+      <div id="volMessage" class="form-message"></div>
+      <button type="submit" class="btn-modal-submit">SUBMIT APPLICATION</button>
+    </form>
+  </div>
+</div>
+
+<!-- ── DONATION MODAL ── -->
+<div id="donationModal" class="modal-overlay">
+  <div class="modal-card">
+    <button class="modal-close" onclick="closeModal('donationModal')">&times;</button>
+    <div class="modal-header">
+      <h2>Make a Pledge / Donation</h2>
+      <p>Support our focus areas. Your generosity changes lives.</p>
+    </div>
+    <form id="donationForm" onsubmit="submitDonationForm(event)">
+      <div class="form-scroll-area">
+      <div class="form-group">
+        <label for="don_name">Full Name</label>
+        <input type="text" id="don_name" name="name" required placeholder="Jane Doe" pattern="[A-Za-z\s\-\']+" title="Names should only contain letters, spaces, hyphens, or apostrophes.">
+      </div>
+      <div class="form-group">
+        <label for="don_email">Email Address</label>
+        <input type="email" id="don_email" name="email" required placeholder="jane@example.com">
+      </div>
+      <div class="form-group">
+        <label for="don_type">Donation Type</label>
+        <select id="don_type" name="type" required onchange="toggleDonationFields(this.value)">
+          <option value="money">Monetary Contribution</option>
+          <option value="item">Physical Items (Books, Supplies, Clothes)</option>
+        </select>
+      </div>
+      
+      <!-- Money Fields -->
+      <div class="form-group" id="moneyFields">
+        <label for="don_amount">Amount (GHS)</label>
+        <input type="number" id="don_amount" name="amount" min="1" step="0.01" placeholder="100.00">
+      </div>
+
+      <!-- Item Fields -->
+      <div class="form-group" id="itemFields" style="display: none;">
+        <label for="don_items">Item Description & Quantity</label>
+        <textarea id="don_items" name="item_description" rows="3" placeholder="List items you wish to pledge..."></textarea>
+      </div>
+
+      </div> <!-- End form-scroll-area -->
+      <div id="donMessage" class="form-message"></div>
+      <button type="submit" class="btn-modal-submit">COMPLETE DONATION PLEDGE</button>
+    </form>
+  </div>
+</div>
+
+<!-- ── EVENT JOIN MODAL ── -->
+<div id="eventJoinModal" class="modal-overlay">
+  <div class="modal-card">
+    <button class="modal-close" onclick="closeModal('eventJoinModal')">&times;</button>
+    <div class="modal-header">
+      <h2>Join Event</h2>
+      <p>Reserve your seat for: <span id="modalEventTitle" style="color: var(--orange); font-weight: 600;">Event Title</span></p>
+    </div>
+    <form id="eventJoinForm" onsubmit="submitEventJoinForm(event)">
+      <div class="form-scroll-area">
+      <input type="hidden" id="join_event_id" name="event_id">
+      <input type="hidden" id="join_event_price" name="event_price" value="0">
+      <div id="joinPriceDisplay" style="display:none; background: #fff8f5; color: var(--orange); padding: 10px; border-radius: 8px; margin-bottom: 15px; font-weight: bold; border: 1px solid #ffccb3;">
+          This is a paid event. You will be prompted to securely pay <span id="joinPriceText">GHS 0.00</span> via Paystack.
+      </div>
+      <div class="form-group">
+        <label for="join_name">Full Name</label>
+        <input type="text" id="join_name" name="name" required placeholder="John Doe" pattern="[A-Za-z\s\-\']+" title="Names should only contain letters, spaces, hyphens, or apostrophes.">
+      </div>
+      <div class="form-group">
+        <label for="join_email">Email Address</label>
+        <input type="email" id="join_email" name="email" required placeholder="john@example.com">
+      </div>
+      <div class="form-group">
+        <label for="join_phone">Phone Number</label>
+        <input type="tel" id="join_phone" name="phone" required placeholder="+233 24 123 4567" pattern="[\+0-9\s\-]+" title="Phone number should only contain digits, spaces, plus signs or hyphens.">
+      </div>
+      </div> <!-- End form-scroll-area -->
+      <div id="joinMessage" class="form-message"></div>
+      <button type="submit" class="btn-modal-submit">REGISTER NOW</button>
+    </form>
+  </div>
+</div>
+
+<!-- ── CSS STYLE INJECTIONS FOR GLASSMORPHIC MODALS ── -->
+<style>
+/* Modal overlay styling */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(8px);
+  z-index: 10000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.4s ease;
+}
+.modal-overlay.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+/* Modal card with vibrant styling */
+.modal-card {
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 20px;
+  width: 90%;
+  max-width: 500px;
+  max-height: 90vh; /* Prevents modal from exceeding screen height */
+  display: flex;
+  flex-direction: column;
+  padding: 40px;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+  position: relative;
+  transform: translateY(-50px);
+  transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+.modal-overlay.active .modal-card {
+  transform: translateY(0);
+}
+.modal-card form {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden; /* contains the scroll area */
+  flex: 1;
+}
+.form-scroll-area {
+  overflow-y: auto; /* Fallback */
+  overflow-y: overlay; /* Allows scrollbar to overlay text on some browsers */
+  padding-right: 15px; 
+  margin-right: -15px; 
+  margin-bottom: 20px;
+  
+  /* Standard CSS for modern browsers (Firefox, newer Chrome) */
+  scrollbar-width: thin;
+  scrollbar-color: var(--orange) rgba(0,0,0,0.05);
+  
+  /* Inner shadow to hint at scrollable content below */
+  box-shadow: inset 0 -15px 15px -15px rgba(0,0,0,0.15);
+}
+/* Style the scrollbar for webkit */
+.form-scroll-area::-webkit-scrollbar {
+  -webkit-appearance: none;
+  width: 8px;
+}
+.form-scroll-area::-webkit-scrollbar-track {
+  background: rgba(0,0,0,0.05); 
+  border-radius: 4px;
+}
+.form-scroll-area::-webkit-scrollbar-thumb {
+  background: rgba(232, 97, 26, 0.6); /* Orange but slightly transparent */
+  border-radius: 4px;
+}
+.form-scroll-area::-webkit-scrollbar-thumb:hover {
+  background: var(--orange); 
+}
+.modal-close {
+  position: absolute;
+  top: 15px;
+  right: 20px;
+  background: none;
+  border: none;
+  font-size: 32px;
+  cursor: pointer;
+  color: #666;
+  transition: color 0.2s;
+}
+.modal-close:hover {
+  color: var(--orange);
+}
+.modal-header h2 {
+  font-family: 'Poppins', sans-serif;
+  color: #111;
+  font-size: 26px;
+  margin-bottom: 5px;
+}
+.modal-header p {
+  color: #666;
+  font-size: 14px;
+  margin-bottom: 25px;
+}
+.form-group {
+  margin-bottom: 20px;
+  text-align: left;
+}
+.form-group label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: #444;
+  margin-bottom: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.form-group input, .form-group textarea, .form-group select {
+  width: 100%;
+  padding: 12px 16px;
+  border: 2px solid #ddd;
+  border-radius: 10px;
+  font-family: 'Poppins', sans-serif;
+  font-size: 16px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  box-sizing: border-box;
+}
+.form-group input:focus, .form-group textarea:focus, .form-group select:focus {
+  border-color: var(--orange);
+  box-shadow: 0 0 10px rgba(232, 97, 26, 0.15);
+  outline: none;
+}
+.btn-modal-submit {
+  width: 100%;
+  padding: 15px;
+  background: var(--orange);
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  font-family: 'Poppins', sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  cursor: pointer;
+  transition: background 0.3s, transform 0.2s;
+}
+.btn-modal-submit:hover {
+  background: #d65415;
+  transform: translateY(-2px);
+}
+.form-message {
+  margin-bottom: 15px;
+  padding: 12px;
+  border-radius: 8px;
+  font-size: 14px;
+  display: none;
+  text-align: left;
+}
+.form-message.success {
+  display: block;
+  background: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+.form-message.error {
+  display: block;
+  background: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+}
+</style>
+
+<!-- Include SweetAlert2 -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<!-- ── JAVASCRIPT MODAL & AJAX FORM CONTROLLER ── -->
+<script>
+// Modal toggling controls
+function openModal(modalId, eventId = null, eventTitle = null, eventPrice = 0) {
+  const modal = document.getElementById(modalId);
+  if (modal) {
+    if (modalId === 'eventJoinModal' && eventId && eventTitle) {
+      document.getElementById('join_event_id').value = eventId;
+      document.getElementById('modalEventTitle').textContent = eventTitle;
+      document.getElementById('join_event_price').value = eventPrice;
+      
+      const priceDisplay = document.getElementById('joinPriceDisplay');
+      if (parseFloat(eventPrice) > 0) {
+          priceDisplay.style.display = 'block';
+          document.getElementById('joinPriceText').textContent = 'GHS ' + parseFloat(eventPrice).toFixed(2);
+      } else {
+          priceDisplay.style.display = 'none';
+      }
+    }
+    modal.classList.add('active');
+    document.body.style.overflow = 'hidden';
+  }
+}
+
+function closeModal(modalId) {
+  const modal = document.getElementById(modalId);
+  if (modal) {
+    modal.classList.remove('active');
+    document.body.style.overflow = '';
+    // Clear forms and messages
+    const form = modal.querySelector('form');
+    if (form) form.reset();
+    const msg = modal.querySelector('.form-message');
+    if (msg) {
+      msg.className = 'form-message';
+      msg.style.display = 'none';
+      msg.textContent = '';
+    }
+  }
+}
+
+// Fix for bfcache (Back-Forward Cache) ghosting (especially on iOS Safari)
+// If the user navigates away with a modal open and hits "Back", this forces it closed.
+window.addEventListener('pageshow', function(event) {
+  if (event.persisted) {
+    document.querySelectorAll('.modal-overlay.active').forEach(modal => {
+      modal.classList.remove('active');
+    });
+    document.body.style.overflow = '';
+  }
+});
+
+// Toggle fields in donation modal based on pledge type
+function toggleDonationFields(value) {
+  const moneyFields = document.getElementById('moneyFields');
+  const itemFields = document.getElementById('itemFields');
+  
+  if (value === 'money') {
+    moneyFields.style.display = 'block';
+    document.getElementById('don_amount').setAttribute('required', 'required');
+    itemFields.style.display = 'none';
+    document.getElementById('don_items').removeAttribute('required');
+  } else {
+    moneyFields.style.display = 'none';
+    document.getElementById('don_amount').removeAttribute('required');
+    itemFields.style.display = 'block';
+    document.getElementById('don_items').setAttribute('required', 'required');
+  }
+}
+
+// Wire up global page event listeners once DOM loaded
+document.addEventListener("DOMContentLoaded", function() {
+  // Bind Volunteer open triggers
+  document.querySelectorAll(".btn-volunteer").forEach(btn => {
+    btn.addEventListener("click", function(e) {
+      e.preventDefault();
+      openModal("volunteerModal");
+    });
+  });
+
+  // Bind Donation triggers
+  document.querySelectorAll(".btn-donate-nav, .btn-donate-mobile, .btn-donate-outline").forEach(btn => {
+    btn.addEventListener("click", function(e) {
+      e.preventDefault();
+      openModal("donationModal");
+    });
+  });
+});
+
+// AJAX Volunteer Submission
+function submitVolunteerForm(e) {
+  e.preventDefault();
+  const form = document.getElementById('volunteerForm');
+  if (!form.checkValidity()) {
+    form.reportValidity();
+    return;
+  }
+  const nameField = document.getElementById('vol_name');
+  if (nameField && /\d/.test(nameField.value)) {
+    Swal.fire({
+      title: 'Validation Error',
+      text: 'Full Name must not contain numbers.',
+      icon: 'error',
+      confirmButtonColor: '#ff6b00'
+    });
+    return;
+  }
+  const msg = document.getElementById('volMessage');
+  const btn = form.querySelector('button[type="submit"]');
+  const originalText = btn.textContent;
+  
+  btn.textContent = "SUBMITTING...";
+  btn.disabled = true;
+  msg.style.display = 'none';
+
+  const formData = new FormData(form);
+  const data = Object.fromEntries(formData.entries());
+
+  fetch("api/register_volunteer.php", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data)
+  })
+  .then(res => res.json())
+  .then(res => {
+    btn.textContent = originalText;
+    btn.disabled = false;
+    if (res.success) {
+      Swal.fire({
+        title: 'Success!',
+        text: res.message,
+        icon: 'success',
+        confirmButtonColor: '#ff6b00'
+      }).then(() => {
+        form.reset();
+        closeModal('volunteerModal');
+      });
+    } else {
+      Swal.fire({
+        title: 'Error',
+        text: res.message || "An error occurred.",
+        icon: 'error',
+        confirmButtonColor: '#ff6b00'
+      });
+    }
+  })
+  .catch(err => {
+    btn.textContent = originalText;
+    btn.disabled = false;
+    Swal.fire({
+      title: 'Network Error',
+      text: 'Please try again.',
+      icon: 'error',
+      confirmButtonColor: '#ff6b00'
+    });
+  });
+}
+
+// AJAX Donation Submission
+function submitDonationForm(e) {
+  e.preventDefault();
+  const form = document.getElementById('donationForm');
+  if (!form.checkValidity()) {
+    form.reportValidity();
+    return;
+  }
+  const nameField = document.getElementById('don_name');
+  if (nameField && /\d/.test(nameField.value)) {
+    Swal.fire({
+      title: 'Validation Error',
+      text: 'Full Name must not contain numbers.',
+      icon: 'error',
+      confirmButtonColor: '#ff6b00'
+    });
+    return;
+  }
+  const msg = document.getElementById('donMessage');
+  const btn = form.querySelector('button[type="submit"]');
+  const originalText = btn.textContent;
+  
+  btn.textContent = "PLEDGING...";
+  btn.disabled = true;
+  msg.style.display = 'none';
+
+  const formData = new FormData(form);
+  const data = Object.fromEntries(formData.entries());
+
+  if (data.type === 'money') {
+      const amount = parseFloat(data.amount);
+      if (!amount || amount <= 0) {
+          btn.textContent = originalText;
+          btn.disabled = false;
+          Swal.fire('Error', 'Please enter a valid amount.', 'error');
+          return;
+      }
+
+      if (typeof PaystackPop === 'undefined') {
+          btn.textContent = originalText;
+          btn.disabled = false;
+          Swal.fire('Error', 'Payment gateway failed to load.', 'error');
+          return;
+      }
+      
+      const tx_ref = 'WF_' + Date.now();
+
+      let handler = PaystackPop.setup({
+          key: PAYSTACK_PUBLIC_KEY, 
+          email: data.email,
+          amount: Math.round(amount * 100),
+          currency: 'GHS',
+          ref: tx_ref,
+          metadata: {
+              custom_fields: [
+                  {
+                      display_name: "Donor Name",
+                      variable_name: "donor_name",
+                      value: data.name
+                  }
+              ]
+          },
+          callback: function(response){
+              Swal.fire({
+                  title: 'Verifying Payment...',
+                  text: 'Please wait while we confirm your payment securely.',
+                  icon: 'info',
+                  allowOutsideClick: false,
+                  showConfirmButton: false
+              });
+
+              data.paystack_reference = response.reference;
+              
+              // Now save to database
+              fetch("api/donate.php", {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify(data)
+              })
+              .then(res => res.json())
+              .then(res => {
+                  btn.textContent = originalText;
+                  btn.disabled = false;
+                  if (res.success) {
+                      Swal.fire({
+                          title: 'Payment Successful!',
+                          text: 'We deeply appreciate your financial contribution. It goes a long way in supporting our cause.',
+                          icon: 'success',
+                          confirmButtonColor: '#00b312'
+                      }).then(() => {
+                          form.reset();
+                          closeModal('donationModal');
+                      });
+                  } else {
+                      Swal.fire('Verification Failed', res.message, 'error');
+                  }
+              })
+              .catch(err => {
+                  btn.textContent = originalText;
+                  btn.disabled = false;
+                  Swal.fire('Verification Error', 'Failed to verify transaction. Please contact support.', 'error');
+              });
+          },
+          onClose: function(){
+              btn.textContent = originalText;
+              btn.disabled = false;
+              Swal.fire('Payment Cancelled', 'You closed the payment window. Your donation has not been processed.', 'info');
+          }
+      });
+      handler.openIframe();
+
+  } else {
+      // Logic for Item donations
+      fetch("api/donate.php", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data)
+      })
+      .then(res => res.json())
+      .then(res => {
+        btn.textContent = originalText;
+        btn.disabled = false;
+        if (res.success) {
+          Swal.fire({
+            title: 'Thank You!',
+            text: 'Thank you for your generous pledge! Our team will contact you shortly to discuss how the items can be delivered.',
+            icon: 'success',
+            confirmButtonColor: '#ff6b00'
+          }).then(() => {
+            form.reset();
+            closeModal('donationModal');
+          });
+        } else {
+          Swal.fire({
+            title: 'Error',
+            text: res.message || "An error occurred.",
+            icon: 'error',
+            confirmButtonColor: '#ff6b00'
+          });
+        }
+      })
+      .catch(err => {
+        btn.textContent = originalText;
+        btn.disabled = false;
+        Swal.fire({
+          title: 'Network Error',
+          text: 'Please try again.',
+          icon: 'error',
+          confirmButtonColor: '#ff6b00'
+        });
+      });
+  }
+}
+
+// AJAX Event Join Submission
+function submitEventJoinForm(e) {
+  e.preventDefault();
+  const form = document.getElementById('eventJoinForm');
+  if (!form.checkValidity()) {
+    form.reportValidity();
+    return;
+  }
+  const nameField = document.getElementById('join_name');
+  if (nameField && /\d/.test(nameField.value)) {
+    Swal.fire({
+      title: 'Validation Error',
+      text: 'Full Name must not contain numbers.',
+      icon: 'error',
+      confirmButtonColor: '#ff6b00'
+    });
+    return;
+  }
+  const msg = document.getElementById('joinMessage');
+  const btn = form.querySelector('button[type="submit"]');
+  const originalText = btn.textContent;
+  
+  btn.textContent = "REGISTERING...";
+  btn.disabled = true;
+  msg.style.display = 'none';
+
+  const formData = new FormData(form);
+  const data = Object.fromEntries(formData.entries());
+  
+  const eventPrice = parseFloat(data.event_price || 0);
+
+  if (eventPrice > 0) {
+      if (typeof PaystackPop === 'undefined') {
+          btn.textContent = originalText;
+          btn.disabled = false;
+          Swal.fire('Error', 'Payment gateway failed to load.', 'error');
+          return;
+      }
+      
+      const tx_ref = 'WF_EVT_' + Date.now();
+
+      let handler = PaystackPop.setup({
+          key: PAYSTACK_PUBLIC_KEY, 
+          email: data.email,
+          amount: Math.round(eventPrice * 100),
+          currency: 'GHS',
+          ref: tx_ref,
+          metadata: {
+              custom_fields: [
+                  {
+                      display_name: "Participant Name",
+                      variable_name: "participant_name",
+                      value: data.name
+                  },
+                  {
+                      display_name: "Event ID",
+                      variable_name: "event_id",
+                      value: data.event_id
+                  }
+              ]
+          },
+          callback: function(response){
+              Swal.fire({
+                  title: 'Verifying Payment...',
+                  text: 'Please wait while we confirm your ticket securely.',
+                  icon: 'info',
+                  allowOutsideClick: false,
+                  showConfirmButton: false
+              });
+
+              data.paystack_reference = response.reference;
+              
+              // Proceed to backend registration
+              submitJoinRequest(data, form, btn, originalText);
+          },
+          onClose: function(){
+              btn.textContent = originalText;
+              btn.disabled = false;
+              Swal.fire('Payment Cancelled', 'You closed the payment window. Your registration has not been completed.', 'info');
+          }
+      });
+      handler.openIframe();
+  } else {
+      // Free event
+      submitJoinRequest(data, form, btn, originalText);
+  }
+}
+
+function submitJoinRequest(data, form, btn, originalText) {
+  fetch("api/join_event.php", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data)
+  })
+  .then(res => res.json())
+  .then(res => {
+    btn.textContent = originalText;
+    btn.disabled = false;
+    if (res.success) {
+      Swal.fire({
+        title: 'Success!',
+        text: res.message,
+        icon: 'success',
+        confirmButtonColor: '#ff6b00'
+      }).then(() => {
+        form.reset();
+        closeModal('eventJoinModal');
+      });
+    } else {
+      Swal.fire({
+        title: 'Error',
+        text: res.message || "An error occurred.",
+        icon: 'error',
+        confirmButtonColor: '#ff6b00'
+      });
+    }
+  })
+  .catch(err => {
+    btn.textContent = originalText;
+    btn.disabled = false;
+    Swal.fire({
+      title: 'Network Error',
+      text: 'Please try again.',
+      icon: 'error',
+      confirmButtonColor: '#ff6b00'
+    });
+  });
+}
+
+// Global Newsletter Subscribe AJAX helper (used on Footer forms)
+function submitNewsletter(emailInputId, messageDivId, e) {
+  if(e) e.preventDefault();
+  
+  const emailInput = document.getElementById(emailInputId);
+  const msg = document.getElementById(messageDivId);
+  
+  if(!emailInput || !msg) return;
+
+  const email = emailInput.value;
+  msg.style.display = 'none';
+
+  fetch("api/subscribe.php", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email: email })
+  })
+  .then(res => res.json())
+  .then(res => {
+    if (res.success) {
+      msg.style.display = 'block';
+      msg.className = "form-message success";
+      msg.textContent = res.message;
+      emailInput.value = '';
+      setTimeout(() => { msg.style.display = 'none'; }, 5000);
+    } else {
+      msg.style.display = 'block';
+      msg.className = "form-message error";
+      msg.textContent = res.message || "Subscription failed.";
+    }
+  })
+  .catch(err => {
+    msg.style.display = 'block';
+    msg.className = "form-message error";
+    msg.textContent = "Network error. Please try again.";
+  });
+}
+</script>

@@ -1,0 +1,108 @@
+<?php
+// config/config.php
+// Global Application Settings for Wiloty Foundation Website
+
+// Error reporting - disable in production, enable in development
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
+// Session initialization
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
+
+// Database Credentials
+define('DB_HOST', 'localhost');
+define('DB_USER', 'root');
+define('DB_PASS', '');
+define('DB_NAME', 'wiloty_db');
+
+// Load secrets if exists
+if (file_exists(__DIR__ . '/secrets.php')) {
+    require_once __DIR__ . '/secrets.php';
+}
+
+if (!defined('BREVO_API_KEY')) define('BREVO_API_KEY', 'your_brevo_api_key_here');
+if (!defined('BREVO_SMTP_PASS')) define('BREVO_SMTP_PASS', 'your_brevo_smtp_pass_here');
+if (!defined('PAYSTACK_PUBLIC_KEY')) define('PAYSTACK_PUBLIC_KEY', 'your_paystack_public_key_here');
+if (!defined('PAYSTACK_SECRET_KEY')) define('PAYSTACK_SECRET_KEY', 'your_paystack_secret_key_here');
+
+// Brevo API Settings (Primary)
+define('BREVO_SENDER_EMAIL', 'info@wilotyfoundation.org');
+define('BREVO_SENDER_NAME', 'Wiloty Foundation');
+
+// SMTP Settings (Fallback PHPMailer config)
+define('SMTP_HOST', 'smtp.gmail.com');
+define('SMTP_PORT', 587);
+define('SMTP_USER', 'notifications@wilotyfoundation.org');
+define('SMTP_PASS', 'secure-smtp-password');
+define('SMTP_FROM', 'no-reply@wilotyfoundation.org');
+define('SMTP_FROM_NAME', 'Wiloty Foundation Notifications');
+
+// Global Configurations
+define('SITE_URL', 'http://localhost/jow');
+define('BASE_PATH', dirname(__DIR__));
+define('UPLOAD_DIR', BASE_PATH . '/uploads/');
+define('UPLOAD_URL', SITE_URL . '/uploads/');
+
+// Create uploads directory if it does not exist
+if (!is_dir(UPLOAD_DIR)) {
+    mkdir(UPLOAD_DIR, 0755, true);
+}
+
+// Security Configuration
+define('RECAPTCHA_SITE_KEY', 'your-recaptcha-site-key');
+define('RECAPTCHA_SECRET_KEY', 'your-recaptcha-secret-key');
+define('CSRF_SESSION_KEY', 'csrf_token');
+
+// Paystack API Keys
+// defined in secrets.php or fallbacks
+
+// Helper to generate CSRF token
+function generate_csrf_token() {
+    if (!isset($_SESSION[CSRF_SESSION_KEY])) {
+        $_SESSION[CSRF_SESSION_KEY] = bin2hex(random_bytes(32));
+    }
+    return $_SESSION[CSRF_SESSION_KEY];
+}
+
+// Helper to verify CSRF token
+function verify_csrf_token($token) {
+    if (isset($_SESSION[CSRF_SESSION_KEY]) && hash_equals($_SESSION[CSRF_SESSION_KEY], $token)) {
+        return true;
+    }
+    return false;
+}
+
+// Security input sanitization function
+function sanitize_input($data) {
+    $data = trim($data);
+    $data = stripslashes($data);
+    $data = htmlspecialchars($data, ENT_QUOTES, 'UTF-8');
+    return $data;
+}
+
+require_once __DIR__ . '/Mailer.php';
+
+// Helper to queue emails for background processing
+function send_email($to, $subject, $body, $from_type = 'admin') {
+    try {
+        require_once __DIR__ . '/db.php';
+        $db = Database::getInstance()->getConnection();
+        
+        $from_email = ($from_type === 'info') ? 'info@wilotyfoundation.org' : 'admin@wilotyfoundation.org';
+
+        $stmt = $db->prepare("INSERT INTO email_queue (to_email, subject, body, status, from_email) VALUES (:to, :subject, :body, 'pending', :from_email)");
+        return $stmt->execute([
+            'to' => $to,
+            'subject' => $subject,
+            'body' => $body,
+            'from_email' => $from_email
+        ]);
+    } catch (Exception $e) {
+        error_log("Failed to queue email to $to: " . $e->getMessage());
+        return false;
+    }
+}
+

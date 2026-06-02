@@ -1,0 +1,29 @@
+Task bar 
+Logo - saturated to white
+width -  146 px
+height - 146 px
+font - poppins
+home buttons - 32px white
+font color - BABABA 
+letter spacing 20%
+active font color fffbfb
+
+donate button - 27px
+donate font color- efeeee
+donate color box - ff6a00
+background transparent
+stoke weight 2 
+width - 179px height 83px
+
+
+hero section 
+header text color - ff6a00,0065f2,00b312
+letter spacing - 5%
+width -  537 px
+background image - width 1536, height 1024 px
+overlay rectangle - linear graddient linear-gradient(89.84deg, rgba(0, 0, 0, 0.82) 27%, rgba(1, 43, 1, 0.82) 40.91%, rgba(7, 103, 7, 0.3116) 62.96%);
+) 
+
+
+
+
