@@ -53,6 +53,11 @@ try {
             throw new Exception("Payment reference missing. Payment could not be verified.");
         }
 
+        // Prevent Replay Attacks (Idempotency): Check if this transaction was already processed
+        if ($eventModel->getByTxRef($paystack_reference)) {
+            throw new Exception("This payment has already been processed.");
+        }
+
         // Verify transaction with Paystack API securely
         $url = "https://api.paystack.co/transaction/verify/" . rawurlencode($paystack_reference);
         $ch = curl_init();

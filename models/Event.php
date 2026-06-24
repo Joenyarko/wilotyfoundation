@@ -134,7 +134,7 @@ class Event {
 
     // Retrieve future events
     public function getUpcoming($limit = 50, $offset = 0) {
-        $stmt = $this->db->prepare("SELECT * FROM events WHERE date >= CURDATE() ORDER BY date ASC, time ASC LIMIT :limit OFFSET :offset");
+        $stmt = $this->db->prepare("SELECT * FROM events WHERE date >= CURDATE() OR date IS NULL ORDER BY date ASC, time ASC LIMIT :limit OFFSET :offset");
         $stmt->bindValue(':limit', (int)$limit, PDO::PARAM_INT);
         $stmt->bindValue(':offset', (int)$offset, PDO::PARAM_INT);
         $stmt->execute();
@@ -143,7 +143,7 @@ class Event {
 
     // Retrieve past events
     public function getRecent($limit = 50, $offset = 0) {
-        $stmt = $this->db->prepare("SELECT * FROM events WHERE date < CURDATE() ORDER BY date DESC, time DESC LIMIT :limit OFFSET :offset");
+        $stmt = $this->db->prepare("SELECT * FROM events WHERE date < CURDATE() AND date IS NOT NULL ORDER BY date DESC, time DESC LIMIT :limit OFFSET :offset");
         $stmt->bindValue(':limit', (int)$limit, PDO::PARAM_INT);
         $stmt->bindValue(':offset', (int)$offset, PDO::PARAM_INT);
         $stmt->execute();
@@ -274,6 +274,13 @@ class Event {
         return $count;
     }
 
+    // Check if a transaction reference already exists to prevent replay attacks
+    public function getByTxRef($tx_ref) {
+        $stmt = $this->db->prepare("SELECT id FROM event_registrations WHERE tx_ref = :tx_ref");
+        $stmt->execute(['tx_ref' => $tx_ref]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
     // Search for paid tickets matching a ticket code suffix
     public function searchPaidTickets($event_id, $code_suffix) {
         $stmt = $this->db->prepare("SELECT * FROM event_registrations WHERE event_id = :event_id AND payment_status = 'completed' AND ticket_code LIKE :suffix ORDER BY registered_at DESC");
@@ -305,7 +312,7 @@ class Event {
     }
 
     public function getUpcomingCount() {
-        $stmt = $this->db->query("SELECT COUNT(*) as total FROM events WHERE date >= CURDATE()");
+        $stmt = $this->db->query("SELECT COUNT(*) as total FROM events WHERE date >= CURDATE() OR date IS NULL");
         return $stmt->fetch()['total'] ?? 0;
     }
 

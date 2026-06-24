@@ -81,9 +81,9 @@ $totalPages = ceil($totalRecords / $limit);
           $timestamp = strtotime($event['date']);
           $month = date("F", $timestamp);
           $day = date("jS", $timestamp);
+          $date_html = '<span class="ed-month">' . htmlspecialchars($month) . '</span><span class="ed-day">' . strtoupper(htmlspecialchars($day)) . '</span>';
       } else {
-          $month = "TBD";
-          $day = "??";
+          $date_html = '<span class="ed-month" style="font-size: 12px; font-weight: bold; margin-bottom: 2px;">DATE NOT</span><span class="ed-day" style="font-size: 16px;">ASSIGNED</span>';
       }
       
       $time = !empty($event['time']) ? $event['time'] : "Not Assigned";
@@ -93,8 +93,7 @@ $totalPages = ceil($totalRecords / $limit);
       <!-- Dynamic Event Row -->
       <div class="event-list-row animate-on-scroll">
         <div class="event-date-side">
-          <span class="ed-month"><?= $month ?></span>
-          <span class="ed-day"><?= strtoupper($day) ?></span>
+          <?= $date_html ?>
         </div>
         
         <div class="event-content-middle">

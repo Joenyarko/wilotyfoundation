@@ -8,127 +8,6 @@
 <script>
   const PAYSTACK_PUBLIC_KEY = '<?= defined("PAYSTACK_PUBLIC_KEY") ? PAYSTACK_PUBLIC_KEY : "" ?>';
 </script>
-
-<!-- ── VOLUNTEER MODAL ── -->
-<div id="volunteerModal" class="modal-overlay">
-  <div class="modal-card">
-    <button class="modal-close" onclick="closeModal('volunteerModal')">&times;</button>
-    <div class="modal-header">
-      <h2>Become a Volunteer</h2>
-      <p>Join our mission and make a real difference in the community</p>
-    </div>
-    <form id="volunteerForm" onsubmit="submitVolunteerForm(event)">
-      <div class="form-scroll-area">
-      <div class="form-group">
-        <label for="vol_name">Full Name</label>
-        <input type="text" id="vol_name" name="name" required placeholder="John Doe" pattern="[A-Za-z\s\-\']+" title="Names should only contain letters, spaces, hyphens, or apostrophes.">
-      </div>
-      <div class="form-group">
-        <label for="vol_email">Email Address</label>
-        <input type="email" id="vol_email" name="email" required placeholder="john@example.com">
-      </div>
-      <div class="form-group">
-        <label for="vol_phone">Phone Number</label>
-        <input type="tel" id="vol_phone" name="phone" required placeholder="+233 24 123 4567" pattern="[\+0-9\s\-]+" title="Phone number should only contain digits, spaces, plus signs or hyphens.">
-      </div>
-      <div class="form-group">
-        <label for="vol_location">Location / City</label>
-        <input type="text" id="vol_location" name="location" required placeholder="Accra, Ghana">
-      </div>
-      <div class="form-group">
-        <label for="vol_skills">Key Skills</label>
-        <input type="text" id="vol_skills" name="skills" required placeholder="e.g. Teaching, Health Support, Social Work">
-      </div>
-      <div class="form-group">
-        <label for="vol_why">Why do you want to volunteer?</label>
-        <textarea id="vol_why" name="why_volunteer" rows="3" required placeholder="Tell us about your motivation..."></textarea>
-      </div>
-      </div> <!-- End form-scroll-area -->
-      <div id="volMessage" class="form-message"></div>
-      <button type="submit" class="btn-modal-submit">SUBMIT APPLICATION</button>
-    </form>
-  </div>
-</div>
-
-<!-- ── DONATION MODAL ── -->
-<div id="donationModal" class="modal-overlay">
-  <div class="modal-card">
-    <button class="modal-close" onclick="closeModal('donationModal')">&times;</button>
-    <div class="modal-header">
-      <h2>Make a Pledge / Donation</h2>
-      <p>Support our focus areas. Your generosity changes lives.</p>
-    </div>
-    <form id="donationForm" onsubmit="submitDonationForm(event)">
-      <div class="form-scroll-area">
-      <div class="form-group">
-        <label for="don_name">Full Name</label>
-        <input type="text" id="don_name" name="name" required placeholder="Jane Doe" pattern="[A-Za-z\s\-\']+" title="Names should only contain letters, spaces, hyphens, or apostrophes.">
-      </div>
-      <div class="form-group">
-        <label for="don_email">Email Address</label>
-        <input type="email" id="don_email" name="email" required placeholder="jane@example.com">
-      </div>
-      <div class="form-group">
-        <label for="don_type">Donation Type</label>
-        <select id="don_type" name="type" required onchange="toggleDonationFields(this.value)">
-          <option value="money">Monetary Contribution</option>
-          <option value="item">Physical Items (Books, Supplies, Clothes)</option>
-        </select>
-      </div>
-      
-      <!-- Money Fields -->
-      <div class="form-group" id="moneyFields">
-        <label for="don_amount">Amount (GHS)</label>
-        <input type="number" id="don_amount" name="amount" min="1" step="0.01" placeholder="100.00">
-      </div>
-
-      <!-- Item Fields -->
-      <div class="form-group" id="itemFields" style="display: none;">
-        <label for="don_items">Item Description & Quantity</label>
-        <textarea id="don_items" name="item_description" rows="3" placeholder="List items you wish to pledge..."></textarea>
-      </div>
-
-      </div> <!-- End form-scroll-area -->
-      <div id="donMessage" class="form-message"></div>
-      <button type="submit" class="btn-modal-submit">COMPLETE DONATION PLEDGE</button>
-    </form>
-  </div>
-</div>
-
-<!-- ── EVENT JOIN MODAL ── -->
-<div id="eventJoinModal" class="modal-overlay">
-  <div class="modal-card">
-    <button class="modal-close" onclick="closeModal('eventJoinModal')">&times;</button>
-    <div class="modal-header">
-      <h2>Join Event</h2>
-      <p>Reserve your seat for: <span id="modalEventTitle" style="color: var(--orange); font-weight: 600;">Event Title</span></p>
-    </div>
-    <form id="eventJoinForm" onsubmit="submitEventJoinForm(event)">
-      <div class="form-scroll-area">
-      <input type="hidden" id="join_event_id" name="event_id">
-      <input type="hidden" id="join_event_price" name="event_price" value="0">
-      <div id="joinPriceDisplay" style="display:none; background: #fff8f5; color: var(--orange); padding: 10px; border-radius: 8px; margin-bottom: 15px; font-weight: bold; border: 1px solid #ffccb3;">
-          This is a paid event. You will be prompted to securely pay <span id="joinPriceText">GHS 0.00</span> via Paystack.
-      </div>
-      <div class="form-group">
-        <label for="join_name">Full Name</label>
-        <input type="text" id="join_name" name="name" required placeholder="John Doe" pattern="[A-Za-z\s\-\']+" title="Names should only contain letters, spaces, hyphens, or apostrophes.">
-      </div>
-      <div class="form-group">
-        <label for="join_email">Email Address</label>
-        <input type="email" id="join_email" name="email" required placeholder="john@example.com">
-      </div>
-      <div class="form-group">
-        <label for="join_phone">Phone Number</label>
-        <input type="tel" id="join_phone" name="phone" required placeholder="+233 24 123 4567" pattern="[\+0-9\s\-]+" title="Phone number should only contain digits, spaces, plus signs or hyphens.">
-      </div>
-      </div> <!-- End form-scroll-area -->
-      <div id="joinMessage" class="form-message"></div>
-      <button type="submit" class="btn-modal-submit">REGISTER NOW</button>
-    </form>
-  </div>
-</div>
-
 <!-- ── CSS STYLE INJECTIONS FOR GLASSMORPHIC MODALS ── -->
 <style>
 /* Modal overlay styling */
@@ -298,6 +177,127 @@
   border: 1px solid #f5c6cb;
 }
 </style>
+<!-- ── VOLUNTEER MODAL ── -->
+<div id="volunteerModal" class="modal-overlay">
+  <div class="modal-card">
+    <button class="modal-close" onclick="closeModal('volunteerModal')">&times;</button>
+    <div class="modal-header">
+      <h2>Become a Volunteer</h2>
+      <p>Join our mission and make a real difference in the community</p>
+    </div>
+    <form id="volunteerForm" onsubmit="submitVolunteerForm(event)">
+      <div class="form-scroll-area">
+      <div class="form-group">
+        <label for="vol_name">Full Name</label>
+        <input type="text" id="vol_name" name="name" required placeholder="John Doe" pattern="[A-Za-z\s\-\']+" title="Names should only contain letters, spaces, hyphens, or apostrophes.">
+      </div>
+      <div class="form-group">
+        <label for="vol_email">Email Address</label>
+        <input type="email" id="vol_email" name="email" required placeholder="john@example.com">
+      </div>
+      <div class="form-group">
+        <label for="vol_phone">Phone Number</label>
+        <input type="tel" id="vol_phone" name="phone" required placeholder="+233 24 123 4567" pattern="[\+0-9\s\-]+" title="Phone number should only contain digits, spaces, plus signs or hyphens.">
+      </div>
+      <div class="form-group">
+        <label for="vol_location">Location / City</label>
+        <input type="text" id="vol_location" name="location" required placeholder="Accra, Ghana">
+      </div>
+      <div class="form-group">
+        <label for="vol_skills">Key Skills</label>
+        <input type="text" id="vol_skills" name="skills" required placeholder="e.g. Teaching, Health Support, Social Work">
+      </div>
+      <div class="form-group">
+        <label for="vol_why">Why do you want to volunteer?</label>
+        <textarea id="vol_why" name="why_volunteer" rows="3" required placeholder="Tell us about your motivation..."></textarea>
+      </div>
+      </div> <!-- End form-scroll-area -->
+      <div id="volMessage" class="form-message"></div>
+      <button type="submit" class="btn-modal-submit">SUBMIT APPLICATION</button>
+    </form>
+  </div>
+</div>
+
+<!-- ── DONATION MODAL ── -->
+<div id="donationModal" class="modal-overlay">
+  <div class="modal-card">
+    <button class="modal-close" onclick="closeModal('donationModal')">&times;</button>
+    <div class="modal-header">
+      <h2>Make a Pledge / Donation</h2>
+      <p>Support our focus areas. Your generosity changes lives.</p>
+    </div>
+    <form id="donationForm" onsubmit="submitDonationForm(event)">
+      <div class="form-scroll-area">
+      <div class="form-group">
+        <label for="don_name">Full Name</label>
+        <input type="text" id="don_name" name="name" required placeholder="Jane Doe" pattern="[A-Za-z\s\-\']+" title="Names should only contain letters, spaces, hyphens, or apostrophes.">
+      </div>
+      <div class="form-group">
+        <label for="don_email">Email Address</label>
+        <input type="email" id="don_email" name="email" required placeholder="jane@example.com">
+      </div>
+      <div class="form-group">
+        <label for="don_type">Donation Type</label>
+        <select id="don_type" name="type" required onchange="toggleDonationFields(this.value)">
+          <option value="money">Monetary Contribution</option>
+          <option value="item">Physical Items (Books, Supplies, Clothes)</option>
+        </select>
+      </div>
+      
+      <!-- Money Fields -->
+      <div class="form-group" id="moneyFields">
+        <label for="don_amount">Amount (GHS)</label>
+        <input type="number" id="don_amount" name="amount" min="1" step="0.01" placeholder="100.00">
+      </div>
+
+      <!-- Item Fields -->
+      <div class="form-group" id="itemFields" style="display: none;">
+        <label for="don_items">Item Description & Quantity</label>
+        <textarea id="don_items" name="item_description" rows="3" placeholder="List items you wish to pledge..."></textarea>
+      </div>
+
+      </div> <!-- End form-scroll-area -->
+      <div id="donMessage" class="form-message"></div>
+      <button type="submit" class="btn-modal-submit">COMPLETE DONATION PLEDGE</button>
+    </form>
+  </div>
+</div>
+
+<!-- ── EVENT JOIN MODAL ── -->
+<div id="eventJoinModal" class="modal-overlay">
+  <div class="modal-card">
+    <button class="modal-close" onclick="closeModal('eventJoinModal')">&times;</button>
+    <div class="modal-header">
+      <h2>Join Event</h2>
+      <p>Reserve your seat for: <span id="modalEventTitle" style="color: var(--orange); font-weight: 600;">Event Title</span></p>
+    </div>
+    <form id="eventJoinForm" onsubmit="submitEventJoinForm(event)">
+      <div class="form-scroll-area">
+      <input type="hidden" id="join_event_id" name="event_id">
+      <input type="hidden" id="join_event_price" name="event_price" value="0">
+      <div id="joinPriceDisplay" style="display:none; background: #fff8f5; color: var(--orange); padding: 10px; border-radius: 8px; margin-bottom: 15px; font-weight: bold; border: 1px solid #ffccb3;">
+          This is a paid event. You will be prompted to securely pay <span id="joinPriceText">GHS 0.00</span> via Paystack.
+      </div>
+      <div class="form-group">
+        <label for="join_name">Full Name</label>
+        <input type="text" id="join_name" name="name" required placeholder="John Doe" pattern="[A-Za-z\s\-\']+" title="Names should only contain letters, spaces, hyphens, or apostrophes.">
+      </div>
+      <div class="form-group">
+        <label for="join_email">Email Address</label>
+        <input type="email" id="join_email" name="email" required placeholder="john@example.com">
+      </div>
+      <div class="form-group">
+        <label for="join_phone">Phone Number</label>
+        <input type="tel" id="join_phone" name="phone" required placeholder="+233 24 123 4567" pattern="[\+0-9\s\-]+" title="Phone number should only contain digits, spaces, plus signs or hyphens.">
+      </div>
+      </div> <!-- End form-scroll-area -->
+      <div id="joinMessage" class="form-message"></div>
+      <button type="submit" class="btn-modal-submit">REGISTER NOW</button>
+    </form>
+  </div>
+</div>
+
+
 
 <!-- Include SweetAlert2 -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -386,7 +386,18 @@ document.addEventListener("DOMContentLoaded", function() {
   document.querySelectorAll(".btn-donate-nav, .btn-donate-mobile, .btn-donate-outline").forEach(btn => {
     btn.addEventListener("click", function(e) {
       e.preventDefault();
-      openModal("donationModal");
+      // To re-enable donation form popup, change DONATIONS_ENABLED to true
+      const DONATIONS_ENABLED = false;
+      if (DONATIONS_ENABLED) {
+        openModal("donationModal");
+      } else {
+        Swal.fire({
+          title: 'Donations Paused',
+          text: 'Online donations are temporarily inactive. Please check back later.',
+          icon: 'info',
+          confirmButtonColor: '#ff6b00'
+        });
+      }
     });
   });
 });
@@ -780,4 +791,81 @@ function submitNewsletter(emailInputId, messageDivId, e) {
     msg.textContent = "Network error. Please try again.";
   });
 }
+
+// ── BLOG SHARING SYSTEM ──
+function getBlogShareUrl(blogId) {
+  const path = window.location.pathname;
+  const directory = path.substring(0, path.lastIndexOf('/'));
+  return `${window.location.origin}${directory}/blog-detail.php?id=${blogId}`;
+}
+
+function shareBlog(blogId, blogTitle) {
+  const shareUrl = getBlogShareUrl(blogId);
+  
+  if (navigator.share) {
+    navigator.share({
+      title: blogTitle,
+      text: `Read this blog post: ${blogTitle}`,
+      url: shareUrl
+    }).catch(err => {
+      if (err.name !== 'AbortError') {
+        copyToClipboard(shareUrl);
+      }
+    });
+  } else {
+    copyToClipboard(shareUrl);
+  }
+}
+
+function copyToClipboard(text) {
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(() => {
+      showShareSuccessToast();
+    }).catch(err => {
+      fallbackCopyToClipboard(text);
+    });
+  } else {
+    fallbackCopyToClipboard(text);
+  }
+}
+
+function fallbackCopyToClipboard(text) {
+  const textArea = document.createElement("textarea");
+  textArea.value = text;
+  textArea.style.position = "fixed";
+  document.body.appendChild(textArea);
+  textArea.focus();
+  textArea.select();
+  try {
+    document.execCommand('copy');
+    showShareSuccessToast();
+  } catch (err) {
+    Swal.fire({
+      title: 'Copy Link',
+      text: 'Please copy this link manually: ' + text,
+      icon: 'info',
+      confirmButtonColor: '#ff6b00'
+    });
+  }
+  document.body.removeChild(textArea);
+}
+
+function showShareSuccessToast() {
+  const Toast = Swal.mixin({
+    toast: true,
+    position: 'top-end',
+    showConfirmButton: false,
+    timer: 3000,
+    timerProgressBar: true,
+    didOpen: (toast) => {
+      toast.addEventListener('mouseenter', Swal.stopTimer)
+      toast.addEventListener('mouseleave', Swal.resumeTimer)
+    }
+  });
+  Toast.fire({
+    icon: 'success',
+    title: 'Link copied to clipboard!'
+  });
+}
 </script>
+

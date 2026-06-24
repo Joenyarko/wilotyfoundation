@@ -195,7 +195,7 @@ include_once __DIR__ . '/admin_header.php';
               <td><img src="../<?= htmlspecialchars($e['image_url']) ?>" style="width:60px; height:45px; border-radius:6px; object-fit:cover;" alt="flyer"></td>
               <td><strong><?= htmlspecialchars($e['title']) ?></strong></td>
               <td><?= htmlspecialchars($e['location']) ?></td>
-              <td><?= empty($e['date']) ? '<span style="color:#888; font-style:italic;">TBD</span>' : date("M j, Y", strtotime($e['date'])) ?></td>
+              <td><?= empty($e['date']) ? '<span style="color:#888; font-style:italic;">Date Not Assigned</span>' : date("M j, Y", strtotime($e['date'])) ?></td>
               <td><?= empty($e['time']) ? '<span style="color:#888; font-style:italic;">Not Assigned</span>' : htmlspecialchars($e['time']) ?></td>
               <td>
                 <a href="events.php?op=view_joiners&id=<?= $e['id'] ?>" class="btn-admin-action approve" style="background:#7928ca;">View Joiners</a>

@@ -1,3 +1,5 @@
 config/secrets.php
 cache/
 .env
+uploads/*
+!uploads/.gitkeep

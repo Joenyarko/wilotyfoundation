@@ -12,16 +12,16 @@ if (session_status() == PHP_SESSION_NONE) {
     session_start();
 }
 
-// Database Credentials
-define('DB_HOST', 'localhost');
-define('DB_USER', 'root');
-define('DB_PASS', '');
-define('DB_NAME', 'wiloty_db');
-
-// Load secrets if exists
+// Load secrets if exists (loads API keys, Paystack, and can override DB/URL configs)
 if (file_exists(__DIR__ . '/secrets.php')) {
     require_once __DIR__ . '/secrets.php';
 }
+
+// Database Credentials (uses values from secrets.php if defined, otherwise defaults to local XAMPP)
+if (!defined('DB_HOST')) define('DB_HOST', 'localhost');
+if (!defined('DB_USER')) define('DB_USER', 'root');
+if (!defined('DB_PASS')) define('DB_PASS', '');
+if (!defined('DB_NAME')) define('DB_NAME', 'wiloty_db');
 
 if (!defined('BREVO_API_KEY')) define('BREVO_API_KEY', 'your_brevo_api_key_here');
 if (!defined('BREVO_SMTP_PASS')) define('BREVO_SMTP_PASS', 'your_brevo_smtp_pass_here');
@@ -41,7 +41,7 @@ define('SMTP_FROM', 'no-reply@wilotyfoundation.org');
 define('SMTP_FROM_NAME', 'Wiloty Foundation Notifications');
 
 // Global Configurations
-define('SITE_URL', 'http://localhost/jow');
+if (!defined('SITE_URL')) define('SITE_URL', 'http://localhost/jow');
 define('BASE_PATH', dirname(__DIR__));
 define('UPLOAD_DIR', BASE_PATH . '/uploads/');
 define('UPLOAD_URL', SITE_URL . '/uploads/');

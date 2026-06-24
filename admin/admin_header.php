@@ -66,7 +66,6 @@ $current_page = basename($_SERVER['PHP_SELF']);
     .admin-brand img {
       width: 45px;
       height: 45px;
-      filter: brightness(0) invert(1);
     }
     .admin-brand span {
       font-size: 18px;
@@ -81,6 +80,12 @@ $current_page = basename($_SERVER['PHP_SELF']);
       display: flex;
       flex-direction: column;
       gap: 8px;
+      flex: 1;
+      overflow-y: auto;
+      scrollbar-width: none; /* Firefox */
+    }
+    .sidebar-menu::-webkit-scrollbar {
+      display: none; /* Safari/Chrome */
     }
     .sidebar-menu li a {
       display: flex;
@@ -318,33 +323,145 @@ $current_page = basename($_SERVER['PHP_SELF']);
     @media (max-width: 768px) {
       .admin-container { flex-direction: column; }
       .admin-sidebar {
-        position: static;
+        position: fixed;
+        top: 0;
+        left: 0;
         width: 100%;
-        height: auto;
-        padding: 20px;
+        height: 70px;
+        z-index: 10000;
+        background: #111;
+        padding: 15px 20px;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        box-sizing: border-box;
+        overflow: hidden;
+        transition: height 0.5s cubic-bezier(0.77, 0.2, 0.05, 1.0);
       }
-      .admin-main { margin-left: 0; padding: 20px; min-height: auto; }
+      .admin-sidebar.open {
+        height: 100vh;
+        overflow-y: auto;
+      }
       
-      .admin-brand { justify-content: space-between; margin-bottom: 0; width: 100%; }
-      .hamburger-btn { display: block; background: none; border: none; color: #fff; cursor: pointer; padding: 5px; }
-      .hamburger-btn svg { width: 28px; height: 28px; }
+      .admin-brand {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
+        margin-bottom: 0;
+      }
+      .admin-brand div {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+      .admin-brand img {
+        width: 35px;
+        height: 35px;
+      }
+      .admin-brand span {
+        font-size: 16px;
+      }
+
+      .hamburger-btn {
+        display: flex !important;
+        flex-direction: column;
+        justify-content: space-between;
+        width: 30px;
+        height: 20px;
+        background: none;
+        border: none;
+        cursor: pointer;
+        padding: 0;
+        z-index: 10001;
+      }
+      .hamburger-btn span {
+        width: 100%;
+        height: 3px;
+        background-color: #fff;
+        border-radius: 2px;
+        transition: all 0.3s cubic-bezier(0.77, 0.2, 0.05, 1.0);
+      }
       
-      .sidebar-menu, .sidebar-footer { display: none; }
-      .admin-sidebar.open .sidebar-menu { display: flex; flex-direction: column; margin-top: 20px; gap: 5px; }
-      .admin-sidebar.open .sidebar-menu li { text-align: left; }
-      .admin-sidebar.open .sidebar-menu li a { justify-content: flex-start; }
-      .admin-sidebar.open .sidebar-footer { display: block; margin-top: 15px; padding-top: 0; }
+      /* Hamburger Animation matching main site */
+      .admin-sidebar.open .hamburger-btn span:nth-child(1) {
+        transform: translateY(8px) rotate(45deg);
+      }
+      .admin-sidebar.open .hamburger-btn span:nth-child(2) {
+        opacity: 0;
+      }
+      .admin-sidebar.open .hamburger-btn span:nth-child(3) {
+        transform: translateY(-9px) rotate(-45deg);
+      }
+      
+      .admin-main {
+        margin-left: 0;
+        padding: 20px;
+        padding-top: 90px; /* Offset for the fixed header */
+        min-height: auto;
+      }
+      
+      .sidebar-menu, .sidebar-footer {
+        display: none;
+      }
+      
+      /* Show and style overlay menu links when open */
+      .admin-sidebar.open .sidebar-menu {
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        align-items: center;
+        flex: none;
+        overflow: visible;
+        gap: 20px;
+        margin-top: 30px;
+        padding: 0;
+      }
+      .admin-sidebar.open .sidebar-menu li {
+        width: 100%;
+        text-align: center;
+      }
+      .admin-sidebar.open .sidebar-menu li a {
+        display: inline-block;
+        font-size: 24px;
+        font-weight: 700;
+        color: #fff;
+        text-transform: uppercase;
+        padding: 10px 20px;
+        border-radius: 8px;
+        transition: color 0.3s;
+      }
+      .admin-sidebar.open .sidebar-menu li a:hover,
+      .admin-sidebar.open .sidebar-menu li.active a {
+        color: var(--orange);
+        background: transparent;
+      }
+      
+      .admin-sidebar.open .sidebar-footer {
+        display: block;
+        width: 100%;
+        margin-top: auto;
+        padding-bottom: 40px;
+      }
+      .admin-sidebar.open .btn-logout {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        max-width: 200px;
+        margin: 0 auto;
+        font-size: 16px;
+        padding: 14px;
+        border-radius: 8px;
+      }
       
       .admin-topbar { flex-direction: column; align-items: flex-start; gap: 15px; }
       .admin-card-header { flex-direction: column; align-items: flex-start; gap: 15px; }
       .admin-card-header .btn-admin-primary { width: 100%; text-align: center; box-sizing: border-box; }
       
-      /* The .admin-card wrapper handles scrolling, so we just let the table expand naturally */
       .admin-table {
         white-space: nowrap;
       }
       
-      /* Adjust buttons inside table for better tapping */
       .admin-table td { padding: 12px 10px; }
       .btn-admin-action { margin-bottom: 6px; display: inline-block; }
     }
@@ -354,6 +471,27 @@ $current_page = basename($_SERVER['PHP_SELF']);
       .sidebar-menu { flex-direction: column; }
       .admin-topbar h1 { font-size: 22px; }
       .admin-card { padding: 20px; }
+    }
+
+    /* Vertical spacing adjustments for 13" laptop screens & shorter desktop viewports */
+    @media (min-width: 769px) and (max-height: 780px) {
+      .admin-sidebar {
+        padding: 20px 15px;
+      }
+      .admin-brand {
+        margin-bottom: 20px;
+      }
+      .sidebar-menu {
+        gap: 4px;
+      }
+      .sidebar-menu li a {
+        padding: 8px 14px;
+        font-size: 13px;
+      }
+      .btn-logout {
+        padding: 10px;
+        font-size: 13px;
+      }
     }
   </style>
   <script>
@@ -472,7 +610,9 @@ $current_page = basename($_SERVER['PHP_SELF']);
         <span>WILOTY ADMIN</span>
       </div>
       <button class="hamburger-btn" onclick="document.getElementById('adminSidebar').classList.toggle('open')" aria-label="Toggle menu">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+        <span></span>
+        <span></span>
+        <span></span>
       </button>
     </div>
     
@@ -483,6 +623,9 @@ $current_page = basename($_SERVER['PHP_SELF']);
       <?php if (Admin::hasPermission('donations')): ?>
       <li class="<?= $current_page === 'donations.php' ? 'active' : '' ?>">
         <a href="donations.php">Donations</a>
+      </li>
+      <li class="<?= $current_page === 'impact_settings.php' ? 'active' : '' ?>">
+        <a href="impact_settings.php">Impact Settings</a>
       </li>
       <?php endif; ?>
       <?php if (Admin::hasPermission('volunteers')): ?>

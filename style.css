@@ -975,7 +975,7 @@ footer::after {
   align-items: center;
   position: relative; 
   width: 100%;
-  height: 700px;
+  height: 550px;
  
 }
 
@@ -1026,10 +1026,10 @@ footer::after {
 
 .blog-hero-container .blog-hero-arrow {
   position: absolute;
-  top: 450px;
+  bottom: 120px;
   right: 90px;
-   color: var(--white);
-    z-index: 3;
+  color: var(--white);
+  z-index: 3;
 }
 
 .blog-hero-socials {
@@ -1166,7 +1166,7 @@ footer::after {
 /* BLOG DETAIL */
 .blog-detail-hero {
   width: 100%;
-  height: 700px;
+  height: 550px;
   border-radius: 20px;
   overflow: hidden;
   position: relative;
@@ -1744,7 +1744,7 @@ body.nav-open {
   }
   
   .blog-hero-container  .blog-hero-featured {
-    height: 700px !important;
+    height: 550px !important;
   }
   
   .blog-hero-container .blog-list {
@@ -2936,4 +2936,80 @@ footer {
     padding-left: 30px !important;
     margin-left: 15px !important;
     list-style-position: inside !important;
+}
+
+/* ==========================================
+   DONATION IMPACT SECTION
+   ========================================== */
+.donation-impact-container {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin-top: 20px;
+}
+
+.donation-actions {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  flex-wrap: wrap;
+}
+
+.btn-impact-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: transparent;
+  border: 1px solid var(--orange);
+  color: var(--orange);
+  font-family: 'Poppins', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+  padding: 16px 30px;
+  border-radius: 0; /* Removing border radius to match btn-donate-outline if it doesn't have one */
+  transition: all 0.3s;
+}
+
+.btn-impact-toggle .icon-chevron {
+  transition: transform 0.3s;
+}
+
+.btn-impact-toggle.is-open .icon-chevron {
+  transform: rotate(180deg);
+}
+
+.btn-impact-toggle:hover {
+  background: var(--orange);
+  color: #fff;
+  opacity: 1;
+}
+
+.impact-content {
+  background: #fff;
+  border-left: 4px solid var(--orange);
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+  margin-top: 10px;
+  animation: slideDown 0.3s ease-out;
+}
+
+.impact-content h4 {
+  margin: 0 0 10px 0;
+  color: var(--text-dark);
+  font-size: 16px;
+}
+
+.impact-text {
+  font-size: 14px;
+  color: var(--text-mid);
+  line-height: 1.6;
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
 }
