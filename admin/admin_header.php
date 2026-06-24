@@ -618,48 +618,48 @@ $current_page = basename($_SERVER['PHP_SELF']);
     
     <ul class="sidebar-menu">
       <li class="<?= $current_page === 'dashboard.php' ? 'active' : '' ?>">
-        <a href="dashboard.php">Dashboard</a>
+        <a href="/admin/dashboard">Dashboard</a>
       </li>
       <?php if (Admin::hasPermission('donations')): ?>
       <li class="<?= $current_page === 'donations.php' ? 'active' : '' ?>">
-        <a href="donations.php">Donations</a>
+        <a href="/admin/donations">Donations</a>
       </li>
       <li class="<?= $current_page === 'impact_settings.php' ? 'active' : '' ?>">
-        <a href="impact_settings.php">Impact Settings</a>
+        <a href="/admin/impact_settings">Impact Settings</a>
       </li>
       <?php endif; ?>
       <?php if (Admin::hasPermission('volunteers')): ?>
       <li class="<?= $current_page === 'volunteers.php' ? 'active' : '' ?>">
-        <a href="volunteers.php">Volunteers</a>
+        <a href="/admin/volunteers">Volunteers</a>
       </li>
       <?php endif; ?>
       <?php if (Admin::hasPermission('blogs')): ?>
       <li class="<?= $current_page === 'blogs.php' ? 'active' : '' ?>">
-        <a href="blogs.php">Blogs CRUD</a>
+        <a href="/admin/blogs">Blogs CRUD</a>
       </li>
       <?php endif; ?>
       <?php if (Admin::hasPermission('events')): ?>
       <li class="<?= $current_page === 'events.php' ? 'active' : '' ?>">
-        <a href="events.php">Events CRUD</a>
+        <a href="/admin/events">Events CRUD</a>
       </li>
       <li class="<?= $current_page === 'verification.php' ? 'active' : '' ?>">
-        <a href="verification.php">Verification</a>
+        <a href="/admin/verification">Verification</a>
       </li>
       <?php endif; ?>
       <?php if (Admin::hasPermission('subscribers')): ?>
       <li class="<?= $current_page === 'subscribers.php' ? 'active' : '' ?>">
-        <a href="subscribers.php">Subscribers</a>
+        <a href="/admin/subscribers">Subscribers</a>
       </li>
       <?php endif; ?>
       <?php if (($_SESSION['admin_role'] ?? '') === 'superadmin'): ?>
       <li class="<?= $current_page === 'users.php' ? 'active' : '' ?>">
-        <a href="users.php">Users Management</a>
+        <a href="/admin/users">Users Management</a>
       </li>
       <?php endif; ?>
     </ul>
 
     <div class="sidebar-footer">
-      <a href="logout.php" class="btn-logout">LOGOUT</a>
+      <a href="/admin/logout" class="btn-logout">LOGOUT</a>
     </div>
   </aside>
 

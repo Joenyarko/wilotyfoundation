@@ -5,19 +5,19 @@
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://wilotyfoundation.org/about.php</loc>
+    <loc>https://wilotyfoundation.org/about</loc>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://wilotyfoundation.org/event.php</loc>
+    <loc>https://wilotyfoundation.org/event</loc>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://wilotyfoundation.org/blog.php</loc>
+    <loc>https://wilotyfoundation.org/blog</loc>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://wilotyfoundation.org/privacy.php</loc>
+    <loc>https://wilotyfoundation.org/privacy</loc>
     <priority>0.5</priority>
   </url>
 </urlset>

@@ -115,12 +115,8 @@ $allEvents = $eventModel->getUpcoming(3, 0);
       </div>
       <?php endif; ?>
 
-      <a href="blog-detail.php" class="blog-hero-arrow" id="heroArrowLink">
-        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-          stroke-linecap="round" stroke-linejoin="round">
-          <line x1="5" y1="12" x2="19" y2="12"></line>
-          <polyline points="12 5 19 12 12 19"></polyline>
-        </svg>
+      <a href="/blog-detail" class="blog-hero-arrow" id="heroArrowLink">
+        <svg viewBox="0 0 24 24"><path d="M12 21l-1.41-1.41L16.17 14H3v-2h13.17l-5.58-5.59L12 5l8 8z"/></svg>
       </a>
 
       <div class="blog-hero-socials">

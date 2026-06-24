@@ -8,16 +8,16 @@ class AppNavbar extends HTMLElement {
     this.innerHTML = `
       <nav class="${isSolid ? 'nav-solid' : ''}">
         <div class="nav-left">
-          <a href="index.php" class="nav-logo">
+          <a href="/" class="nav-logo">
             <img src="assets/WhatsApp_Image_2026-03-06_at_8.22.29_AM-removebg-preview.png" alt="Wiloty Foundation Logo" />
           </a>
         </div>
         <div class="nav-center">
           <ul class="nav-links">
-            <li><a href="index.php" class="${activePage === 'home' ? 'active' : ''}">Home</a></li>
-            <li><a href="about.php" class="${activePage === 'about' ? 'active' : ''}">About</a></li>
-            <li><a href="blog.php" class="${activePage === 'blog' ? 'active' : ''}">Blog</a></li>
-            <li><a href="event.php" class="${activePage === 'event' ? 'active' : ''}">Event</a></li>
+            <li><a href="/" class="${activePage === 'home' ? 'active' : ''}">Home</a></li>
+            <li><a href="/about" class="${activePage === 'about' ? 'active' : ''}">About</a></li>
+            <li><a href="/blog" class="${activePage === 'blog' ? 'active' : ''}">Blog</a></li>
+            <li><a href="/event" class="${activePage === 'event' ? 'active' : ''}">Event</a></li>
           </ul>
         </div>
         <div class="nav-right">
@@ -31,10 +31,10 @@ class AppNavbar extends HTMLElement {
       </nav>
       <div class="nav-mobile-overlay">
         <ul class="nav-mobile-links">
-          <li><a href="index.php" class="${activePage === 'home' ? 'active' : ''}">Home</a></li>
-          <li><a href="about.php" class="${activePage === 'about' ? 'active' : ''}">About</a></li>
-          <li><a href="blog.php" class="${activePage === 'blog' ? 'active' : ''}">Blog</a></li>
-          <li><a href="event.php" class="${activePage === 'event' ? 'active' : ''}">Event</a></li>
+          <li><a href="/" class="${activePage === 'home' ? 'active' : ''}">Home</a></li>
+          <li><a href="/about" class="${activePage === 'about' ? 'active' : ''}">About</a></li>
+          <li><a href="/blog" class="${activePage === 'blog' ? 'active' : ''}">Blog</a></li>
+          <li><a href="/event" class="${activePage === 'event' ? 'active' : ''}">Event</a></li>
           <li><a href="#" class="btn-donate-mobile">Donate</a></li>
         </ul>
       </div>
@@ -102,11 +102,11 @@ class AppFooter extends HTMLElement {
           <div class="footer-col">
             <h4>Resources</h4>
             <ul>
-              <li><a href="index.php">Home</a></li>
-              <li><a href="about.php">About</a></li>
-              <li><a href="blog.php">Blog</a></li>
-              <li><a href="event.php">Event</a></li>
-              <li><a href="privacy.php">Privacy Policy</a></li>
+              <li><a href="/">Home</a></li>
+              <li><a href="/about">About</a></li>
+              <li><a href="/blog">Blog</a></li>
+              <li><a href="/event">Event</a></li>
+              <li><a href="/privacy">Privacy Policy</a></li>
             </ul>
           </div>
 
@@ -251,7 +251,7 @@ document.addEventListener('DOMContentLoaded', () => {
       <div style="position: fixed; bottom: 0; left: 0; right: 0; background: #111; color: #fff; padding: 20px; z-index: 10000; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; font-family: 'Poppins', sans-serif; box-shadow: 0 -5px 15px rgba(0,0,0,0.5); transform: translateY(100%); transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);">
         <div style="max-width: 1100px; display: flex; flex-direction: row; align-items: center; justify-content: space-between; gap: 30px; width: 100%; margin: 0 auto;">
           <p style="margin: 0; font-size: 14px; line-height: 1.6; text-align: left; color: #ddd;">
-            We use cookies to enhance your browsing experience, serve personalized features, and analyze site traffic. By clicking "Accept", you consent to our use of cookies. Read our <a href="privacy.php" style="color: var(--orange, #ff6b00); text-decoration: underline; font-weight: 600;">Privacy Policy</a>.
+            We use cookies to enhance your browsing experience, serve personalized features, and analyze site traffic. By clicking "Accept", you consent to our use of cookies. Read our <a href="/privacy" style="color: var(--orange, #ff6b00); text-decoration: underline; font-weight: 600;">Privacy Policy</a>.
           </p>
           <div style="display: flex; gap: 10px; flex-shrink: 0;">
             <button id="acceptCookiesBtn" style="background: var(--orange, #ff6b00); color: #fff; border: none; padding: 12px 30px; border-radius: 8px; font-weight: 700; font-family: 'Poppins', sans-serif; cursor: pointer; transition: background 0.3s; white-space: nowrap; font-size: 14px;">Accept</button>
