@@ -796,7 +796,7 @@ function submitNewsletter(emailInputId, messageDivId, e) {
 function getBlogShareUrl(blogId) {
   const path = window.location.pathname;
   const directory = path.substring(0, path.lastIndexOf('/'));
-  return `${window.location.origin}${directory}/blog-detail.php?id=${blogId}`;
+  return `${window.location.origin}${directory}/blog-detail?id=${blogId}`;
 }
 
 function shareBlog(blogId, blogTitle) {
