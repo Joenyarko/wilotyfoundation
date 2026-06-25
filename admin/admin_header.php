@@ -29,6 +29,49 @@ $current_page = basename($_SERVER['PHP_SELF']);
       fetch('../api/process_email_queue.php').catch(e => console.error(e));
   </script>
   <style>
+    /* Custom Admin Tooltip */
+    .custom-tooltip {
+      position: relative;
+      display: inline-block;
+      cursor: pointer;
+    }
+    .custom-tooltip .tooltip-text {
+      visibility: hidden;
+      width: max-content;
+      max-width: 220px;
+      background-color: var(--orange, #ff6b00);
+      color: #fff;
+      text-align: left;
+      border-radius: 6px;
+      padding: 10px;
+      position: absolute;
+      z-index: 1000;
+      bottom: 125%;
+      left: 50%;
+      transform: translateX(-50%);
+      opacity: 0;
+      transition: opacity 0.3s;
+      font-size: 13px;
+      line-height: 1.4;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+      white-space: normal;
+      word-wrap: break-word;
+    }
+    .custom-tooltip .tooltip-text::after {
+      content: "";
+      position: absolute;
+      top: 100%;
+      left: 50%;
+      margin-left: -5px;
+      border-width: 5px;
+      border-style: solid;
+      border-color: var(--orange, #ff6b00) transparent transparent transparent;
+    }
+    .custom-tooltip:hover .tooltip-text {
+      visibility: visible;
+      opacity: 1;
+    }
+    
     /* Premium Admin Dashboard styling overrides */
     body {
       background: #f4f6f9;

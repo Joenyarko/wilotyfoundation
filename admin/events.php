@@ -235,7 +235,7 @@ include_once __DIR__ . '/admin_header.php';
     </div>
     
     <div style="margin-bottom: 20px; padding: 0 20px;">
-        <form method="GET" action="events.php" style="display: flex; gap: 10px; max-width: 500px;">
+        <form method="GET" action="events.php" style="display: flex; flex-wrap: wrap; gap: 10px; max-width: 500px; width: 100%;">
             <input type="hidden" name="op" value="view_joiners">
             <input type="hidden" name="id" value="<?= $edit_id ?>">
             <input type="text" name="q" placeholder="Search by name or ticket code..." value="<?= isset($_GET['q']) ? htmlspecialchars($_GET['q']) : '' ?>" style="flex: 1; padding: 10px; border: 1px solid #ccc; border-radius: 6px; outline: none; font-family: 'Poppins', sans-serif;">

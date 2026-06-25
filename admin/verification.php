@@ -94,7 +94,7 @@ include_once __DIR__ . '/admin_header.php';
               <h3 style="margin-top: 0; color: #333;">Scan / Verify Ticket</h3>
               <p style="color: #666; font-size: 14px; margin-bottom: 15px;">Enter the <strong>last 4-6 digits</strong> of the participant's ticket code.</p>
               
-              <div style="display: flex; justify-content: center; gap: 10px; max-width: 500px; margin: 0 auto;">
+              <div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; max-width: 500px; margin: 0 auto; width: 100%;">
                   <input type="text" name="q" placeholder="e.g. 1A2B3C" value="<?= htmlspecialchars($q) ?>" required
                          style="flex: 1; padding: 15px; font-size: 18px; text-transform: uppercase; border: 2px solid var(--orange); border-radius: 8px; outline: none; font-weight: bold; letter-spacing: 2px; text-align: center;">
                   <button type="submit" class="btn-admin-primary" style="font-size: 16px; padding: 0 30px;">SEARCH</button>

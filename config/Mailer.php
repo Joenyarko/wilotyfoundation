@@ -21,8 +21,8 @@ class Mailer {
             $this->mail->SMTPAuth   = true;
             $this->mail->Username   = defined('BREVO_SMTP_USER') ? BREVO_SMTP_USER : 'acb51c001@smtp-brevo.com';
             $this->mail->Password   = defined('BREVO_SMTP_PASS') ? BREVO_SMTP_PASS : 'your_brevo_smtp_pass_here';
-            $this->mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-            $this->mail->Port       = 587;
+            $this->mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
+            $this->mail->Port       = 465;
 
             // Default Sender
             $this->mail->setFrom('info@wilotyfoundation.org', 'Wiloty Foundation');

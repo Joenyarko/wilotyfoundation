@@ -68,11 +68,17 @@ include_once __DIR__ . '/admin_header.php';
             <td><?= htmlspecialchars($vol['email']) ?></td>
             <td><?= htmlspecialchars($vol['phone']) ?></td>
             <td><?= htmlspecialchars($vol['location']) ?></td>
-            <td title="<?= htmlspecialchars($vol['skills']) ?>" style="cursor: pointer;">
-              <small><?= htmlspecialchars(strlen($vol['skills']) > 30 ? substr($vol['skills'], 0, 30) . '...' : $vol['skills']) ?></small>
+            <td>
+              <div class="custom-tooltip">
+                <small><?= htmlspecialchars(strlen($vol['skills']) > 30 ? substr($vol['skills'], 0, 30) . '...' : $vol['skills']) ?></small>
+                <span class="tooltip-text"><?= htmlspecialchars($vol['skills']) ?></span>
+              </div>
             </td>
-            <td title="<?= htmlspecialchars($vol['why_volunteer']) ?>" style="cursor: pointer;">
-              <small><?= htmlspecialchars(strlen($vol['why_volunteer']) > 30 ? substr($vol['why_volunteer'], 0, 30) . '...' : $vol['why_volunteer']) ?></small>
+            <td>
+              <div class="custom-tooltip">
+                <small><?= htmlspecialchars(strlen($vol['why_volunteer']) > 30 ? substr($vol['why_volunteer'], 0, 30) . '...' : $vol['why_volunteer']) ?></small>
+                <span class="tooltip-text"><?= htmlspecialchars($vol['why_volunteer']) ?></span>
+              </div>
             </td>
             <td>
               <span class="badge <?= $vol['status'] ?>">
