@@ -29,49 +29,33 @@ $current_page = basename($_SERVER['PHP_SELF']);
       fetch('../api/process_email_queue.php').catch(e => console.error(e));
   </script>
   <style>
-    /* Custom Admin Tooltip */
-    .custom-tooltip {
-      position: relative;
-      display: inline-block;
-      cursor: pointer;
-    }
-    .custom-tooltip .tooltip-text {
-      visibility: hidden;
-      width: max-content;
-      max-width: 220px;
+    /* Global Tooltip for Admin Tables */
+    #global-tooltip {
+      position: absolute;
+      z-index: 999999;
       background-color: var(--orange, #ff6b00);
       color: #fff;
-      text-align: left;
-      border-radius: 6px;
       padding: 10px;
-      position: absolute;
-      z-index: 1000;
-      top: 125%; /* Display below the text */
-      bottom: auto;
-      left: 50%;
-      transform: translateX(-50%);
-      opacity: 0;
-      transition: opacity 0.3s;
+      border-radius: 6px;
       font-size: 13px;
       line-height: 1.4;
+      max-width: 250px;
       box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+      pointer-events: none;
+      display: none;
+      text-align: left;
       white-space: normal;
       word-wrap: break-word;
     }
-    .custom-tooltip .tooltip-text::after {
+    #global-tooltip::after {
       content: "";
       position: absolute;
-      bottom: 100%; /* Arrow at top of tooltip */
-      top: auto;
+      bottom: 100%;
       left: 50%;
       margin-left: -5px;
       border-width: 5px;
       border-style: solid;
-      border-color: transparent transparent var(--orange, #ff6b00) transparent; /* Arrow pointing up */
-    }
-    .custom-tooltip:hover .tooltip-text {
-      visibility: visible;
-      opacity: 1;
+      border-color: transparent transparent var(--orange, #ff6b00) transparent;
     }
     
     /* Premium Admin Dashboard styling overrides */

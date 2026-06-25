@@ -69,16 +69,14 @@ include_once __DIR__ . '/admin_header.php';
             <td><?= htmlspecialchars($vol['phone']) ?></td>
             <td><?= htmlspecialchars($vol['location']) ?></td>
             <td>
-              <div class="custom-tooltip">
+              <span class="custom-tooltip-trigger" data-tooltip="<?= htmlspecialchars($vol['skills']) ?>" style="border-bottom: 1px dashed #aaa;">
                 <small><?= htmlspecialchars(strlen($vol['skills']) > 30 ? substr($vol['skills'], 0, 30) . '...' : $vol['skills']) ?></small>
-                <span class="tooltip-text"><?= htmlspecialchars($vol['skills']) ?></span>
-              </div>
+              </span>
             </td>
             <td>
-              <div class="custom-tooltip">
+              <span class="custom-tooltip-trigger" data-tooltip="<?= htmlspecialchars($vol['why_volunteer']) ?>" style="border-bottom: 1px dashed #aaa;">
                 <small><?= htmlspecialchars(strlen($vol['why_volunteer']) > 30 ? substr($vol['why_volunteer'], 0, 30) . '...' : $vol['why_volunteer']) ?></small>
-                <span class="tooltip-text"><?= htmlspecialchars($vol['why_volunteer']) ?></span>
-              </div>
+              </span>
             </td>
             <td>
               <span class="badge <?= $vol['status'] ?>">
