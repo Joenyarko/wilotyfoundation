@@ -46,7 +46,8 @@ $current_page = basename($_SERVER['PHP_SELF']);
       padding: 10px;
       position: absolute;
       z-index: 1000;
-      bottom: 125%;
+      top: 125%; /* Display below the text */
+      bottom: auto;
       left: 50%;
       transform: translateX(-50%);
       opacity: 0;
@@ -60,12 +61,13 @@ $current_page = basename($_SERVER['PHP_SELF']);
     .custom-tooltip .tooltip-text::after {
       content: "";
       position: absolute;
-      top: 100%;
+      bottom: 100%; /* Arrow at top of tooltip */
+      top: auto;
       left: 50%;
       margin-left: -5px;
       border-width: 5px;
       border-style: solid;
-      border-color: var(--orange, #ff6b00) transparent transparent transparent;
+      border-color: transparent transparent var(--orange, #ff6b00) transparent; /* Arrow pointing up */
     }
     .custom-tooltip:hover .tooltip-text {
       visibility: visible;
