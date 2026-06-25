@@ -3,9 +3,9 @@
 // Global Application Settings for Wiloty Foundation Website
 
 // Error reporting - disable in production, enable in development
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
+ini_set('display_errors', 0);
+ini_set('display_startup_errors', 0);
+error_reporting(0);
 
 // Session initialization
 if (session_status() == PHP_SESSION_NONE) {
