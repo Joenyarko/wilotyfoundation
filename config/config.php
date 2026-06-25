@@ -86,23 +86,17 @@ function sanitize_input($data) {
 
 require_once __DIR__ . '/Mailer.php';
 
-// Helper to queue emails for background processing
+// Helper to send emails immediately (synchronously)
 function send_email($to, $subject, $body, $from_type = 'admin') {
     try {
-        require_once __DIR__ . '/db.php';
-        $db = Database::getInstance()->getConnection();
+        require_once __DIR__ . '/Mailer.php';
+        $mailer = new Mailer();
         
         $from_email = ($from_type === 'info') ? 'info@wilotyfoundation.org' : 'admin@wilotyfoundation.org';
 
-        $stmt = $db->prepare("INSERT INTO email_queue (to_email, subject, body, status, from_email) VALUES (:to, :subject, :body, 'pending', :from_email)");
-        return $stmt->execute([
-            'to' => $to,
-            'subject' => $subject,
-            'body' => $body,
-            'from_email' => $from_email
-        ]);
+        return $mailer->sendEmail($to, $subject, $body, $from_email);
     } catch (Exception $e) {
-        error_log("Failed to queue email to $to: " . $e->getMessage());
+        error_log("Failed to send email to $to: " . $e->getMessage());
         return false;
     }
 }
