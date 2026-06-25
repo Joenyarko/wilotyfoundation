@@ -94,6 +94,24 @@ function send_email($to, $subject, $body, $from_type = 'admin') {
         
         $from_email = ($from_type === 'info') ? 'info@wilotyfoundation.org' : 'admin@wilotyfoundation.org';
 
+        // Apply global beautiful Wiloty template if the email doesn't already have one
+        if (strpos($body, 'max-width: 600px;') === false) {
+            $body = "
+            <div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; color: #333; border: 1px solid #eaeaea; border-radius: 8px; padding: 20px;'>
+                <div style='text-align: center; padding-bottom: 15px; border-bottom: 2px dashed #eaeaea; margin-bottom: 20px;'>
+                    <h2 style='margin: 0; color: #ff6b00;'>Wiloty Foundation</h2>
+                    <p style='margin: 5px 0 0 0; font-size: 14px; color: #666;'>Building Impact Through Community</p>
+                </div>
+                <div style='font-size: 15px; line-height: 1.6;'>
+                    $body
+                </div>
+                <div style='border-top: 2px dashed #eaeaea; padding-top: 20px; margin-top: 20px; text-align: center; font-size: 12px; color: #999;'>
+                    <p style='font-weight: bold; color: #666; margin-bottom: 5px;'>Wiloty Foundation</p>
+                    <p><a href='mailto:info@wilotyfoundation.org' style='color: #999;'>info@wilotyfoundation.org</a></p>
+                </div>
+            </div>";
+        }
+
         return $mailer->sendEmail($to, $subject, $body, $from_email);
     } catch (Exception $e) {
         error_log("Failed to send email to $to: " . $e->getMessage());
