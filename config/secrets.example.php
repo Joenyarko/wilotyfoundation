@@ -13,6 +13,7 @@ define('DB_NAME', 'wiloty_db');
 define('SITE_URL', 'https://wilotyfoundation.org');
 
 // Brevo (Sendinblue) SMTP API configurations
+define('BREVO_SMTP_USER', 'your_brevo_smtp_user_here');
 define('BREVO_API_KEY', 'your_brevo_api_key_here');
 define('BREVO_SMTP_PASS', 'your_brevo_smtp_pass_here');
 

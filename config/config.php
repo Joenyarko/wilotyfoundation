@@ -23,6 +23,7 @@ if (!defined('DB_USER')) define('DB_USER', 'root');
 if (!defined('DB_PASS')) define('DB_PASS', '');
 if (!defined('DB_NAME')) define('DB_NAME', 'wiloty_db');
 
+if (!defined('BREVO_SMTP_USER')) define('BREVO_SMTP_USER', 'your_brevo_smtp_user_here');
 if (!defined('BREVO_API_KEY')) define('BREVO_API_KEY', 'your_brevo_api_key_here');
 if (!defined('BREVO_SMTP_PASS')) define('BREVO_SMTP_PASS', 'your_brevo_smtp_pass_here');
 if (!defined('PAYSTACK_PUBLIC_KEY')) define('PAYSTACK_PUBLIC_KEY', 'your_paystack_public_key_here');

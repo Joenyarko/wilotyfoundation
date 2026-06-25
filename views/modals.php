@@ -189,7 +189,7 @@
       <div class="form-scroll-area">
       <div class="form-group">
         <label for="vol_name">Full Name</label>
-        <input type="text" id="vol_name" name="name" required placeholder="John Doe" pattern="[A-Za-z\s\-\']+" title="Names should only contain letters, spaces, hyphens, or apostrophes.">
+        <input type="text" id="vol_name" name="name" required placeholder="John Doe" pattern="[A-Za-z\s\-']+" title="Names should only contain letters, spaces, hyphens, or apostrophes.">
       </div>
       <div class="form-group">
         <label for="vol_email">Email Address</label>
@@ -230,7 +230,7 @@
       <div class="form-scroll-area">
       <div class="form-group">
         <label for="don_name">Full Name</label>
-        <input type="text" id="don_name" name="name" required placeholder="Jane Doe" pattern="[A-Za-z\s\-\']+" title="Names should only contain letters, spaces, hyphens, or apostrophes.">
+        <input type="text" id="don_name" name="name" required placeholder="Jane Doe" pattern="[A-Za-z\s\-']+" title="Names should only contain letters, spaces, hyphens, or apostrophes.">
       </div>
       <div class="form-group">
         <label for="don_email">Email Address</label>
@@ -280,7 +280,7 @@
       </div>
       <div class="form-group">
         <label for="join_name">Full Name</label>
-        <input type="text" id="join_name" name="name" required placeholder="John Doe" pattern="[A-Za-z\s\-\']+" title="Names should only contain letters, spaces, hyphens, or apostrophes.">
+        <input type="text" id="join_name" name="name" required placeholder="John Doe" pattern="[A-Za-z\s\-']+" title="Names should only contain letters, spaces, hyphens, or apostrophes.">
       </div>
       <div class="form-group">
         <label for="join_email">Email Address</label>

@@ -19,7 +19,7 @@ class Mailer {
             $this->mail->isSMTP();
             $this->mail->Host       = 'smtp-relay.brevo.com'; // Brevo SMTP
             $this->mail->SMTPAuth   = true;
-            $this->mail->Username   = 'acb51c001@smtp-brevo.com';
+            $this->mail->Username   = defined('BREVO_SMTP_USER') ? BREVO_SMTP_USER : 'acb51c001@smtp-brevo.com';
             $this->mail->Password   = defined('BREVO_SMTP_PASS') ? BREVO_SMTP_PASS : 'your_brevo_smtp_pass_here';
             $this->mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
             $this->mail->Port       = 587;
