@@ -36,11 +36,43 @@ $allEvents = $eventModel->getUpcoming(3, 0);
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="icon" href="assets/WhatsApp_Image_2026-03-06_at_8.22.29_AM-removebg-preview.ico" sizes="32x32">
   <title>Blog | Wiloty Foundation | Community Development & Education NGO Ghana</title>
-  <meta name="description" content="Wiloty Foundation is a nonprofit organization in Ghana focused on education, youth empowerment, and community development through impactful social projects and skills training.">
-  <meta name="keywords" content="Wiloty Foundation, NGO Ghana, nonprofit organization, community development Ghana, education support, youth empowerment, skills training, social impact Ghana">
+  <meta name="description" content="Read the latest news, updates, and stories of impact from Wiloty Foundation's community projects in Ghana.">
+  <meta name="keywords" content="Wiloty Foundation Blog, NGO news Ghana, community impact stories, foundation updates, youth empowerment news">
   <meta name="author" content="Wiloty Foundation">
   <meta name="robots" content="index, follow">
-  <meta name="theme-color" content="#000000">
+  <meta name="theme-color" content="#ff6b00">
+  <link rel="canonical" href="https://wilotyfoundation.org/blog.php">
+
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://wilotyfoundation.org/blog.php">
+  <meta property="og:title" content="Blog & Impact Stories | Wiloty Foundation">
+  <meta property="og:description" content="Read the latest news, updates, and stories of impact from Wiloty Foundation's community projects in Ghana.">
+  <meta property="og:image" content="https://wilotyfoundation.org/assets/WhatsApp_Image_2026-03-06_at_8.22.29_AM-removebg-preview.png">
+  <meta property="og:site_name" content="Wiloty Foundation">
+
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:url" content="https://wilotyfoundation.org/blog.php">
+  <meta name="twitter:title" content="Blog & Impact Stories | Wiloty Foundation">
+  <meta name="twitter:description" content="Read the latest news, updates, and stories of impact from Wiloty Foundation's community projects.">
+  <meta name="twitter:image" content="https://wilotyfoundation.org/assets/WhatsApp_Image_2026-03-06_at_8.22.29_AM-removebg-preview.png">
+
+  <!-- JSON-LD -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "NGO",
+    "name": "Wiloty Foundation",
+    "url": "https://wilotyfoundation.org/",
+    "description": "Wiloty Foundation is a nonprofit organization in Ghana focused on education, youth empowerment, and community development.",
+    "sameAs": [
+      "https://www.facebook.com/profile.php?id=61590101025446",
+      "https://www.tiktok.com/@wilotyfoundation",
+      "https://www.linkedin.com/in/wiloty-foundation-469067414/"
+    ]
+  }
+  </script>
   <link rel="stylesheet" href="style.css?v=6.4" />
   <style>
     .btn-volunteer, .btn-donate-outline {
