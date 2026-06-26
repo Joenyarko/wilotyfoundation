@@ -19,7 +19,8 @@ $upcomingEvents = $eventModel->getUpcoming(3, 0);
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="icon" href="assets/WhatsApp_Image_2026-03-06_at_8.22.29_AM-removebg-preview.ico" sizes="32x32">
+  <link rel="icon" href="assets/WhatsApp_Image_2026-03-06_at_8.22.29_AM-removebg-preview.png" type="image/png">
+  <link rel="apple-touch-icon" href="assets/WhatsApp_Image_2026-03-06_at_8.22.29_AM-removebg-preview.png">
   <title>Wiloty Foundation | Community Development & Education NGO Ghana</title>
   <meta name="description" content="Wiloty Foundation is a nonprofit organization in Ghana focused on education, youth empowerment, and community development through impactful social projects and skills training.">
   <meta name="keywords" content="Wiloty Foundation, NGO Ghana, nonprofit organization, community development Ghana, education support, youth empowerment, skills training, social impact Ghana">

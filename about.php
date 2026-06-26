@@ -10,7 +10,8 @@ require_once __DIR__ . '/config/config.php';
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link class="tab-logo" rel="icon" href="assets/WhatsApp_Image_2026-03-06_at_8.22.29_AM-removebg-preview.ico" sizes="32x32">
+  <link rel="icon" href="assets/WhatsApp_Image_2026-03-06_at_8.22.29_AM-removebg-preview.png" type="image/png">
+  <link rel="apple-touch-icon" href="assets/WhatsApp_Image_2026-03-06_at_8.22.29_AM-removebg-preview.png">
   <title>About Us | Wiloty Foundation | Community Development & Education NGO Ghana</title>
   <meta name="description" content="Learn about Wiloty Foundation, our mission, vision, and the dedicated team driving community development and youth empowerment in Ghana.">
   <meta name="keywords" content="About Wiloty Foundation, NGO Ghana, foundation mission, charity team Ghana, community impact">

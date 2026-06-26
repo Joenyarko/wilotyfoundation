@@ -34,7 +34,8 @@ $allEvents = $eventModel->getUpcoming(3, 0);
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="icon" href="assets/WhatsApp_Image_2026-03-06_at_8.22.29_AM-removebg-preview.ico" sizes="32x32">
+  <link rel="icon" href="assets/WhatsApp_Image_2026-03-06_at_8.22.29_AM-removebg-preview.png" type="image/png">
+  <link rel="apple-touch-icon" href="assets/WhatsApp_Image_2026-03-06_at_8.22.29_AM-removebg-preview.png">
   <title>Blog | Wiloty Foundation | Community Development & Education NGO Ghana</title>
   <meta name="description" content="Read the latest news, updates, and stories of impact from Wiloty Foundation's community projects in Ghana.">
   <meta name="keywords" content="Wiloty Foundation Blog, NGO news Ghana, community impact stories, foundation updates, youth empowerment news">
