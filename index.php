@@ -230,6 +230,67 @@ $upcomingEvents = $eventModel->getUpcoming(3, 0);
     </div>
   </section>
 
+  <!-- ── LEADERSHIP & BOARD MEMBERS ── -->
+  <section class="home-leadership-section">
+    <div class="home-leadership-container">
+      <div class="home-leadership-header">
+        <h2>OUR LEADERSHIP</h2>
+        <p class="home-leadership-sub">Meet the dedicated board members guiding Wiloty Foundation’s vision, governance, and community impact.</p>
+      </div>
+
+      <div class="home-leadership-grid">
+
+        <!-- Leader 1 -->
+        <a href="leadership.php#eben" class="home-leader-card animate-on-scroll">
+          <div class="home-leader-avatar-wrapper">
+            <img src="assets/Eben.PNG" alt="Wilberforce Ebenezer Kwakye" class="home-leader-img" />
+          </div>
+          <h3 class="home-leader-name">Wilberforce Ebenezer Kwakye</h3>
+          <div class="home-leader-role">Board Director</div>
+          <span class="home-leader-badge">Finance Executive</span>
+        </a>
+
+        <!-- Leader 2 -->
+        <a href="leadership.php#loretta" class="home-leader-card animate-on-scroll animate-delay-100">
+          <div class="home-leader-avatar-wrapper">
+            <img src="assets/Loretta.PNG" alt="Loretta Sarfo" class="home-leader-img" />
+          </div>
+          <h3 class="home-leader-name">Loretta Sarfo</h3>
+          <div class="home-leader-role">Board Member</div>
+          <span class="home-leader-badge">Senior Protocol Officer</span>
+        </a>
+
+        <!-- Leader 3 -->
+        <a href="leadership.php#ofori" class="home-leader-card animate-on-scroll animate-delay-200">
+          <div class="home-leader-avatar-wrapper">
+            <img src="assets/Ofori.jpeg" alt="Kingsley Ofori Owusu" class="home-leader-img" />
+          </div>
+          <h3 class="home-leader-name">Kingsley Ofori Owusu</h3>
+          <div class="home-leader-role">Board Member</div>
+          <span class="home-leader-badge">Military Officer</span>
+        </a>
+
+        <!-- Leader 4 -->
+        <a href="leadership.php#virgil" class="home-leader-card animate-on-scroll animate-delay-300">
+          <div class="home-leader-avatar-wrapper">
+            <img src="assets/Virgil.jpeg" alt="Virgil Anyetei" class="home-leader-img" />
+          </div>
+          <h3 class="home-leader-name">Virgil Anyetei</h3>
+          <div class="home-leader-role">Board Secretary</div>
+          <span class="home-leader-badge">CEO, Empire Electronics</span>
+        </a>
+
+      </div>
+
+      <div class="home-leadership-more-wrapper">
+        <a href="leadership.php" class="btn-leadership-see-more">
+          SEE MORE
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+        </a>
+      </div>
+    </div>
+  </section>
+
   <!-- ── UPCOMING EVENTS ── -->
   <section class="events" style="margin-bottom: 20px;">
     <h2>UPCOMING EVENTS</h2>

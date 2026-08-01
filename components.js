@@ -15,9 +15,10 @@ class AppNavbar extends HTMLElement {
         <div class="nav-center">
           <ul class="nav-links">
             <li><a href="/" class="${activePage === 'home' ? 'active' : ''}">Home</a></li>
-            <li><a href="/about" class="${activePage === 'about' ? 'active' : ''}">About</a></li>
-            <li><a href="/blog" class="${activePage === 'blog' ? 'active' : ''}">Blog</a></li>
-            <li><a href="/event" class="${activePage === 'event' ? 'active' : ''}">Event</a></li>
+            <li><a href="about.php" class="${activePage === 'about' ? 'active' : ''}">About</a></li>
+            <li><a href="leadership.php" class="${activePage === 'leadership' ? 'active' : ''}">Leadership</a></li>
+            <li><a href="blog.php" class="${activePage === 'blog' ? 'active' : ''}">Blog</a></li>
+            <li><a href="event.php" class="${activePage === 'event' ? 'active' : ''}">Event</a></li>
           </ul>
         </div>
         <div class="nav-right">
@@ -32,9 +33,10 @@ class AppNavbar extends HTMLElement {
       <div class="nav-mobile-overlay">
         <ul class="nav-mobile-links">
           <li><a href="/" class="${activePage === 'home' ? 'active' : ''}">Home</a></li>
-          <li><a href="/about" class="${activePage === 'about' ? 'active' : ''}">About</a></li>
-          <li><a href="/blog" class="${activePage === 'blog' ? 'active' : ''}">Blog</a></li>
-          <li><a href="/event" class="${activePage === 'event' ? 'active' : ''}">Event</a></li>
+          <li><a href="about.php" class="${activePage === 'about' ? 'active' : ''}">About</a></li>
+          <li><a href="leadership.php" class="${activePage === 'leadership' ? 'active' : ''}">Leadership</a></li>
+          <li><a href="blog.php" class="${activePage === 'blog' ? 'active' : ''}">Blog</a></li>
+          <li><a href="event.php" class="${activePage === 'event' ? 'active' : ''}">Event</a></li>
           <li><a href="#" class="btn-donate-mobile">Donate</a></li>
         </ul>
       </div>
@@ -103,10 +105,11 @@ class AppFooter extends HTMLElement {
             <h4>Resources</h4>
             <ul>
               <li><a href="/">Home</a></li>
-              <li><a href="/about">About</a></li>
-              <li><a href="/blog">Blog</a></li>
-              <li><a href="/event">Event</a></li>
-              <li><a href="/privacy">Privacy Policy</a></li>
+              <li><a href="about.php">About</a></li>
+              <li><a href="leadership.php">Leadership</a></li>
+              <li><a href="blog.php">Blog</a></li>
+              <li><a href="event.php">Event</a></li>
+              <li><a href="privacy.php">Privacy Policy</a></li>
             </ul>
           </div>
 
