@@ -113,23 +113,23 @@ nav {
 .nav-links {
   display: flex;
   align-items: center;
-  width: 90%;
   list-style: none;
-  justify-content: space-between;
-  gap: 40px;
+  justify-content: center;
+  gap: 32px;
   margin: 0;                    
   padding: 0;  
 }
 
 .nav-links a {
   font-family: 'Montserrat', sans-serif;
-  font-size: 16px;
+  font-size: 18px;
   font-weight: 700;
   color: var(--nav-gray);
   text-decoration: none;
   text-transform: uppercase;
-  letter-spacing: 20%;
+  letter-spacing: 3px;
   white-space: nowrap;
+  transition: color 0.3s ease;
 }
 
 .nav-links a:hover,
