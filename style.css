@@ -3372,3 +3372,38 @@ footer {
   }
 }
 
+/* Read More Toggle */
+.read-more-btn {
+  display: none;
+  background: transparent;
+  color: var(--orange);
+  border: 1px solid var(--orange);
+  padding: 8px 20px;
+  border-radius: 20px;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 15px;
+  transition: all 0.3s ease;
+}
+
+.read-more-btn:hover {
+  background: var(--orange);
+  color: #fff;
+}
+
+@media (max-width: 768px) {
+  .leader-bio-body p:not(:first-child) {
+    display: none;
+  }
+  
+  .leader-bio-body.expanded p:not(:first-child) {
+    display: block;
+  }
+
+  .read-more-btn {
+    display: inline-block;
+  }
+}
+

@@ -124,6 +124,7 @@ require_once __DIR__ . '/config/config.php';
                 As a Board Director of Wiloty Foundation LBG, Wilberforce contributes strong financial leadership, accountability, and governance expertise to support sustainable growth, effective resource management, and the achievement of the Foundation’s development objectives.
               </p>
             </div>
+            <button class="read-more-btn" onclick="toggleBio(this)">Read more</button>
           </div>
         </div>
       </div>
@@ -155,6 +156,7 @@ require_once __DIR__ . '/config/config.php';
                 As a Board Member of Wiloty Foundation LBG, she contributes her knowledge in governance, public relations, protocol management, and stakeholder engagement to support the Foundation’s vision, strengthen partnerships, and promote impactful community development initiatives.
               </p>
             </div>
+            <button class="read-more-btn" onclick="toggleBio(this)">Read more</button>
           </div>
         </div>
       </div>
@@ -186,6 +188,7 @@ require_once __DIR__ . '/config/config.php';
                 As a Board Member of Wiloty Foundation LBG, Kingsley contributes his wealth of experience in leadership, security management, operational planning, discipline, and team development. His commitment to integrity, service, and effective management strengthens the Foundation’s governance structure and supports the implementation of impactful community development initiatives.
               </p>
             </div>
+            <button class="read-more-btn" onclick="toggleBio(this)">Read more</button>
           </div>
         </div>
       </div>
@@ -217,6 +220,7 @@ require_once __DIR__ . '/config/config.php';
                 With a combination of financial expertise, entrepreneurial leadership, and a passion for social impact, Virgil supports the Board in advancing the Foundation’s vision, promoting transparency, and achieving sustainable community development outcomes.
               </p>
             </div>
+            <button class="read-more-btn" onclick="toggleBio(this)">Read more</button>
           </div>
         </div>
       </div>
@@ -248,6 +252,17 @@ require_once __DIR__ . '/config/config.php';
   <?php include_once __DIR__ . '/views/modals.php'; ?>
 
   <script src="components.js"></script>
+  <script>
+    function toggleBio(btn) {
+      const bioBody = btn.previousElementSibling;
+      bioBody.classList.toggle('expanded');
+      if (bioBody.classList.contains('expanded')) {
+        btn.textContent = 'Read less';
+      } else {
+        btn.textContent = 'Read more';
+      }
+    }
+  </script>
 </body>
 
 </html>
