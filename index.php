@@ -68,7 +68,7 @@ $upcomingEvents = $eventModel->getUpcoming(3, 0);
   }
   </script>
 
-  <link rel="stylesheet" href="style.css?v=6.0" />
+  <link rel="stylesheet" href="style.css?v=8.0" />
   <style>
     /* Styling fix for custom page elements */
     .btn-volunteer, .btn-donate-outline {

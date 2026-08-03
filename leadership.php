@@ -68,7 +68,7 @@ require_once __DIR__ . '/config/config.php';
   }
   </script>
 
-  <link rel="stylesheet" href="style.css?v=7.0" />
+  <link rel="stylesheet" href="style.css?v=8.0" />
   <style>
     .btn-volunteer, .btn-donate-outline {
       cursor: pointer;

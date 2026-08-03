@@ -36,7 +36,7 @@ $totalPages = ceil($totalRecords / $limit);
   <meta name="author" content="Wiloty Foundation">
   <meta name="robots" content="index, follow">
   <meta name="theme-color" content="#000000">
-  <link rel="stylesheet" href="style.css?v=6.0" />
+  <link rel="stylesheet" href="style.css?v=8.0" />
   <style>
     .btn-volunteer, .btn-donate-outline {
       cursor: pointer;
