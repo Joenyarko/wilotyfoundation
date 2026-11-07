@@ -2,18 +2,22 @@
 // api/donate.php
 // AJAX API endpoint for donation pledges
 
-header("Content-Type: application/json");
-header("Access-Control-Allow-Origin: *");
-header("Access-Control-Allow-Methods: POST");
-header("Access-Control-Allow-Headers: Content-Type");
-
 require_once __DIR__ . '/../config/config.php';
 require_once __DIR__ . '/../models/Donation.php';
 require_once __DIR__ . '/../config/Mailer.php';
 
+header("Content-Type: application/json");
+send_api_cors_headers("POST");
+
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     http_response_code(405);
     echo json_encode(["success" => false, "message" => "Method Not Allowed"]);
+    exit();
+}
+
+if (!check_rate_limit('api_donate', 10, 60)) {
+    http_response_code(429);
+    echo json_encode(["success" => false, "message" => "Too many requests. Please wait a moment and try again."]);
     exit();
 }
 
@@ -73,7 +77,14 @@ try {
         }
 
         $result = json_decode($response_json, true);
-        if (!$result || !isset($result['status']) || $result['status'] !== true || $result['data']['status'] !== 'success') {
+        if (
+            !$result ||
+            !isset($result['status']) ||
+            $result['status'] !== true ||
+            ($result['data']['status'] ?? '') !== 'success' ||
+            strtoupper($result['data']['currency'] ?? '') !== 'GHS' ||
+            (float)($result['data']['amount'] ?? 0) <= 0
+        ) {
             throw new Exception("Payment verification failed. If you were charged, please contact support.");
         }
 
@@ -89,7 +100,7 @@ try {
         $tx_ref = null;
     }
 
-    // Insert record as pending initially
+    // Insert record as pending initially (transactional replay check inside Donation::create)
     $donationModel = new Donation();
     $donation_id = $donationModel->create($name, $email, $type, $amount, $item_description, 'pending', $tx_ref);
 

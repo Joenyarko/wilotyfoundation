@@ -15,13 +15,14 @@ $eventModel = new Event();
 $error = '';
 $success = '';
 
-// Handle Verification Action
-if (isset($_GET['verify_id']) && isset($_GET['event_id'])) {
-    $verify_id = (int)$_GET['verify_id'];
-    $event_id = (int)$_GET['event_id'];
-    $q = isset($_GET['q']) ? urlencode($_GET['q']) : '';
+// Handle Verification Action (requires POST + valid CSRF token)
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['verify_id']) || isset($_GET['verify_id']))) {
+    require_csrf_token();
+    $verify_id = (int)($_POST['verify_id'] ?? $_GET['verify_id'] ?? 0);
+    $event_id = (int)($_POST['event_id'] ?? $_GET['event_id'] ?? 0);
+    $q = isset($_POST['q']) ? urlencode($_POST['q']) : (isset($_GET['q']) ? urlencode($_GET['q']) : '');
     
-    if ($eventModel->toggleTicketVerification($verify_id)) {
+    if ($verify_id > 0 && $eventModel->toggleTicketVerification($verify_id)) {
         header("Location: verification.php?event_id={$event_id}&q={$q}&success_msg=" . urlencode("Ticket verification status updated!"));
         exit();
     } else {

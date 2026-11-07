@@ -14,10 +14,12 @@ if (isset($_SESSION['admin_logged_in']) && $_SESSION['admin_logged_in'] === true
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $username = sanitize_input($_POST['username'] ?? '');
-    $password = sanitize_input($_POST['password'] ?? '');
-    $csrf_token = sanitize_input($_POST['csrf_token'] ?? '');
+    $password = $_POST['password'] ?? '';
+    $csrf_token = $_POST['csrf_token'] ?? '';
 
-    if (!verify_csrf_token($csrf_token)) {
+    if (!check_rate_limit('admin_login', 5, 300)) {
+        $error = "Too many login attempts. Please wait 5 minutes and try again.";
+    } elseif (!verify_csrf_token($csrf_token)) {
         $error = "CSRF security check failed. Please refresh and try again.";
     } elseif (empty($username) || empty($password)) {
         $error = "Please enter both username and password.";

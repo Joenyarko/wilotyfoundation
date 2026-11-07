@@ -13,20 +13,41 @@ class Donation {
 
     // Insert a new donation record (money or physical item)
     public function create($name, $email, $type, $amount = null, $item_description = null, $status = 'pending', $tx_ref = null) {
-        $stmt = $this->db->prepare("INSERT INTO donations (name, email, type, amount, item_description, status, tx_ref) VALUES (:name, :email, :type, :amount, :item_description, :status, :tx_ref)");
-        $result = $stmt->execute([
-            'name' => $name,
-            'email' => $email,
-            'type' => $type,
-            'amount' => $amount,
-            'item_description' => $item_description,
-            'status' => $status,
-            'tx_ref' => $tx_ref
-        ]);
+        $inTransaction = $this->db->inTransaction();
+        if (!$inTransaction) {
+            $this->db->beginTransaction();
+        }
+        try {
+            if (!empty($tx_ref)) {
+                $txCheck = $this->db->prepare("SELECT id FROM donations WHERE tx_ref = :tx_ref FOR UPDATE");
+                $txCheck->execute(['tx_ref' => $tx_ref]);
+                if ($txCheck->fetch()) {
+                    throw new Exception("This payment has already been processed.");
+                }
+            }
+
+            $stmt = $this->db->prepare("INSERT INTO donations (name, email, type, amount, item_description, status, tx_ref) VALUES (:name, :email, :type, :amount, :item_description, :status, :tx_ref)");
+            $result = $stmt->execute([
+                'name' => $name,
+                'email' => $email,
+                'type' => $type,
+                'amount' => $amount,
+                'item_description' => $item_description,
+                'status' => $status,
+                'tx_ref' => $tx_ref
+            ]);
+            $donation_id = $this->db->lastInsertId();
+            if (!$inTransaction) {
+                $this->db->commit();
+            }
+        } catch (Exception $e) {
+            if (!$inTransaction && $this->db->inTransaction()) {
+                $this->db->rollBack();
+            }
+            throw $e;
+        }
 
         if ($result) {
-            $donation_id = $this->db->lastInsertId();
-            
             // Send email confirmation notification
             $subject = "Thank you for your donation pledge | Wiloty Foundation";
             if ($type === 'money') {

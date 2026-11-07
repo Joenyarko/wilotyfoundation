@@ -305,11 +305,15 @@ $allEvents = $eventModel->getUpcoming(3, 0);
         link.href = detailUrl;
         arrowLink.href = detailUrl;
 
-        // Dynamically update the hero share button click handler
+        // Dynamically update the hero share button click handler safely without string interpolation
         const shareBtn = document.getElementById('heroShareBtn');
         if (shareBtn) {
-          const escapedTitle = blog.title.replace(/'/g, "\\'");
-          shareBtn.setAttribute('onclick', `shareBlog(${blog.id}, '${escapedTitle}'); return false;`);
+          shareBtn.removeAttribute('onclick');
+          shareBtn.onclick = function(e) {
+            e.preventDefault();
+            shareBlog(Number(blog.id), String(blog.title));
+            return false;
+          };
         }
 
         // Fade back in

@@ -59,5 +59,6 @@ try {
     echo "SUCCESS [" . date("Y-m-d H:i:s") . "]: Automated campaign scheduler run complete.\n";
 
 } catch (Exception $e) {
-    echo "ERROR: " . $e->getMessage() . "\n";
+    error_log("Campaign scheduler error: " . $e->getMessage());
+    echo "ERROR: An internal error occurred during campaign scheduling.\n";
 }

@@ -27,7 +27,7 @@ CREATE TABLE IF NOT EXISTS `donations` (
   `amount` DECIMAL(10, 2) DEFAULT NULL,
   `item_description` TEXT DEFAULT NULL,
   `status` ENUM('pending', 'completed') DEFAULT 'pending',
-  `tx_ref` VARCHAR(100) DEFAULT NULL,
+  `tx_ref` VARCHAR(100) DEFAULT NULL UNIQUE,
   `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   INDEX (`email`),
   INDEX (`status`)
@@ -85,8 +85,8 @@ CREATE TABLE IF NOT EXISTS `event_registrations` (
   `email` VARCHAR(100) NOT NULL,
   `phone` VARCHAR(20) NOT NULL,
   `payment_status` ENUM('n/a', 'pending', 'completed') DEFAULT 'n/a',
-  `tx_ref` VARCHAR(100) DEFAULT NULL,
-  `ticket_code` VARCHAR(50) DEFAULT NULL,
+  `tx_ref` VARCHAR(100) DEFAULT NULL UNIQUE,
+  `ticket_code` VARCHAR(50) DEFAULT NULL UNIQUE,
   `registered_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   INDEX (`event_id`),
   INDEX (`email`),
@@ -103,10 +103,9 @@ CREATE TABLE IF NOT EXISTS `subscribers` (
   INDEX (`status`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Seed default admin account (username: admin, password: password123)
--- Real deployment must update credentials.
-INSERT INTO `admins` (`username`, `password_hash`, `email`)
-VALUES ('admin', '$2y$10$DOYO56IrA46tceTWjEG.A.ZJTwPt5s5hrVkLQ5ZK7eZBcFzxFCz6S', 'admin@wilotyfoundation.org')
+-- Seed initial admin account (forces immediate password reset on first login)
+INSERT INTO `admins` (`username`, `password_hash`, `email`, `role`, `must_reset_password`)
+VALUES ('admin', '$2y$10$DOYO56IrA46tceTWjEG.A.ZJTwPt5s5hrVkLQ5ZK7eZBcFzxFCz6S', 'admin@wilotyfoundation.org', 'superadmin', 1)
 ON DUPLICATE KEY UPDATE `username`=`username`;
 
 -- Email Queue Table

@@ -17,15 +17,16 @@ $error = '';
 $success = '';
 $generated_password = '';
 
-// Handle CRUD operations
+// Handle CRUD operations (all state-changing actions require POST + valid CSRF token)
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $op = $_POST['operation'] ?? '';
+    require_csrf_token();
+    $op = sanitize_input($_POST['operation'] ?? $_POST['action'] ?? $_GET['action'] ?? '');
     $username = sanitize_input($_POST['username'] ?? '');
     $email = sanitize_input($_POST['email'] ?? '');
     $full_name = sanitize_input($_POST['full_name'] ?? '');
     $phone = sanitize_input($_POST['phone'] ?? '');
-    $role = $_POST['role'] ?? 'admin';
-    $permissions = $_POST['permissions'] ?? [];
+    $role = in_array($_POST['role'] ?? 'admin', ['admin', 'superadmin'], true) ? $_POST['role'] : 'admin';
+    $permissions = is_array($_POST['permissions'] ?? null) ? $_POST['permissions'] : [];
     
     if ($op === 'add') {
         if (empty($username) || empty($email) || empty($full_name)) {
@@ -42,7 +43,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         }
     } elseif ($op === 'edit') {
-        $edit_id = (int)$_POST['edit_id'];
+        $edit_id = (int)($_POST['edit_id'] ?? 0);
         if (empty($username) || empty($email) || empty($full_name)) {
             $error = "Full Name, Username, and Email are required.";
             $action = 'edit';
@@ -57,10 +58,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $edit_user = $adminModel->getById($edit_id);
             }
         }
+    } elseif ($op === 'delete') {
+        $del_id = (int)($_POST['id'] ?? $_GET['id'] ?? 0);
+        if ($del_id > 0 && $del_id !== (int)$_SESSION['admin_id']) {
+            $adminModel->delete($del_id);
+            header("Location: users.php?success_msg=" . urlencode("User deleted successfully!"));
+            exit;
+        } else {
+            $error = "You cannot delete your own active session account.";
+            $action = 'list';
+        }
+    } elseif ($op === 'reset_password') {
+        $reset_id = (int)($_POST['id'] ?? $_GET['id'] ?? 0);
+        if ($reset_id > 0) {
+            $generated_password = $adminModel->forceResetPassword($reset_id);
+            $success = "Password reset successfully! Please copy the temporary password below and send it to the user securely.";
+        }
+        $action = 'list';
     }
 }
 
-if (isset($_GET['action'])) {
+if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['action'])) {
     $action_get = sanitize_input($_GET['action']);
     
     if ($action_get === 'add') {
@@ -69,21 +87,6 @@ if (isset($_GET['action'])) {
         $action = 'edit';
         $edit_user = $adminModel->getById((int)$_GET['id']);
         if (!$edit_user) $action = 'list';
-    } elseif ($action_get === 'delete' && isset($_GET['id'])) {
-        $del_id = (int)$_GET['id'];
-        if ($del_id !== (int)$_SESSION['admin_id']) { 
-            $adminModel->delete($del_id);
-            header("Location: users.php?success_msg=" . urlencode("User deleted successfully!"));
-            exit;
-        } else {
-            $error = "You cannot delete your own active session account.";
-            $action = 'list';
-        }
-    } elseif ($action_get === 'reset_password' && isset($_GET['id'])) {
-        $reset_id = (int)$_GET['id'];
-        $generated_password = $adminModel->forceResetPassword($reset_id);
-        $success = "Password reset successfully! Please copy the temporary password below and send it to the user securely.";
-        $action = 'list';
     }
 }
 
@@ -193,6 +196,7 @@ require_once __DIR__ . '/admin_header.php';
     <p style="color:#666; font-size:14px; margin-top:5px;">Note: Passwords are no longer set manually. After saving, click "Reset Password" on their profile to securely generate their initial login credentials.</p>
     
     <form method="POST" action="users.php" style="margin-top: 25px;">
+      <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(generate_csrf_token()) ?>">
       <input type="hidden" name="operation" value="<?= $action ?>">
       <?php if ($action === 'edit'): ?>
         <input type="hidden" name="edit_id" value="<?= $edit_user['id'] ?>">

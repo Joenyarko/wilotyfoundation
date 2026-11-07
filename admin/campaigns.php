@@ -4,6 +4,10 @@
 
 require_once __DIR__ . '/../models/Admin.php';
 Admin::protect();
+if (!Admin::hasPermission('subscribers')) {
+    header("Location: dashboard.php");
+    exit();
+}
 
 require_once __DIR__ . '/../config/db.php';
 $db = Database::getInstance()->getConnection();
@@ -11,33 +15,37 @@ $db = Database::getInstance()->getConnection();
 $success = '';
 $error = '';
 
-// Handle deletion
-if (isset($_GET['action']) && $_GET['action'] === 'delete' && isset($_GET['id'])) {
-    $id = (int)$_GET['id'];
-    $del = $db->prepare("DELETE FROM campaigns WHERE id = :id AND status = 'pending'");
-    if ($del->execute(['id' => $id])) {
-        $success = "Campaign deleted.";
-    }
-}
+// Handle creation and deletion (requires POST + valid CSRF token)
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    require_csrf_token();
+    $action = sanitize_input($_POST['action'] ?? $_GET['action'] ?? '');
 
-// Handle creation
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_campaign'])) {
-    $subject = sanitize_input($_POST['subject'] ?? '');
-    $send_date = sanitize_input($_POST['send_date'] ?? '');
-    $body = $_POST['body'] ?? '';
+    if ($action === 'delete') {
+        $id = (int)($_POST['id'] ?? $_GET['id'] ?? 0);
+        if ($id > 0) {
+            $del = $db->prepare("DELETE FROM campaigns WHERE id = :id AND status = 'pending'");
+            if ($del->execute(['id' => $id])) {
+                $success = "Campaign deleted.";
+            }
+        }
+    } elseif (isset($_POST['create_campaign'])) {
+        $subject = sanitize_input($_POST['subject'] ?? '');
+        $send_date = sanitize_input($_POST['send_date'] ?? '');
+        $body = sanitize_rich_html($_POST['body'] ?? '');
 
-    if (empty($subject) || empty($send_date) || empty($body)) {
-        $error = "All fields are required.";
-    } else {
-        $stmt = $db->prepare("INSERT INTO campaigns (subject, body, send_date, status) VALUES (:subject, :body, :send_date, 'pending')");
-        if ($stmt->execute([
-            'subject' => $subject,
-            'body' => $body,
-            'send_date' => $send_date
-        ])) {
-            $success = "Campaign scheduled successfully!";
+        if (empty($subject) || empty($send_date) || empty($body)) {
+            $error = "All fields are required.";
         } else {
-            $error = "Failed to schedule campaign.";
+            $stmt = $db->prepare("INSERT INTO campaigns (subject, body, send_date, status) VALUES (:subject, :body, :send_date, 'pending')");
+            if ($stmt->execute([
+                'subject' => $subject,
+                'body' => $body,
+                'send_date' => $send_date
+            ])) {
+                $success = "Campaign scheduled successfully!";
+            } else {
+                $error = "Failed to schedule campaign.";
+            }
         }
     }
 }
@@ -79,6 +87,7 @@ include_once __DIR__ . '/admin_header.php';
   <?php endif; ?>
 
   <form method="POST" action="campaigns.php" class="admin-form">
+    <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(generate_csrf_token()) ?>">
     <div class="form-group">
       <label>Campaign Subject (e.g., Happy Holidays from Wiloty Foundation!)</label>
       <input type="text" name="subject" required>
@@ -127,7 +136,7 @@ include_once __DIR__ . '/admin_header.php';
             </td>
             <td>
               <?php if ($camp['status'] === 'pending'): ?>
-                <a href="campaigns.php?action=delete&id=<?= $camp['id'] ?>" class="btn-admin-action delete" onclick="return confirm('Are you sure you want to cancel this scheduled campaign?');">Delete</a>
+                <a href="campaigns.php?action=delete&id=<?= $camp['id'] ?>" class="btn-admin-action delete" onclick="confirmAction(event, this.href, 'Are you sure you want to cancel this scheduled campaign?', 'Yes, Delete', true)">Delete</a>
               <?php else: ?>
                 <span style="color:#999; font-size:12px;">N/A</span>
               <?php endif; ?>

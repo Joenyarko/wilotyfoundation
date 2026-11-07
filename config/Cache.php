@@ -2,6 +2,8 @@
 // config/Cache.php
 // File-based output caching engine for high-traffic optimization
 
+require_once __DIR__ . '/config.php';
+
 class Cache {
     private static $cache_dir = __DIR__ . '/../cache/';
     
@@ -17,19 +19,16 @@ class Cache {
         }
 
         // Disable cache if admin is logged in so they see live updates
-        if (session_status() == PHP_SESSION_NONE) {
-            session_start();
-        }
+        init_secure_session();
         if (isset($_SESSION['admin_logged_in']) && $_SESSION['admin_logged_in'] === true) {
             return false;
         }
 
-        $cache_file = self::$cache_dir . md5($page_id) . '.html';
+        $cache_file = self::$cache_dir . hash('sha256', (string)$page_id) . '.html';
 
         // Check if cache exists and is fresh
         if (file_exists($cache_file) && (time() - $duration < filemtime($cache_file))) {
             echo file_get_contents($cache_file);
-            echo "\n<!-- Cached Snapshot: " . date('Y-m-d H:i:s', filemtime($cache_file)) . " | Refresh in: " . ($duration - (time() - filemtime($cache_file))) . "s -->";
             exit; // Stop executing the rest of the PHP script
         }
         
@@ -46,7 +45,7 @@ class Cache {
         if ($cache_file) {
             $content = ob_get_clean();
             // Save to file
-            file_put_contents($cache_file, $content);
+            file_put_contents($cache_file, $content, LOCK_EX);
             // Output to user
             echo $content;
         }

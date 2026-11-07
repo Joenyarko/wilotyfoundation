@@ -4,6 +4,10 @@
 
 require_once __DIR__ . '/../models/Admin.php';
 Admin::protect();
+if (!Admin::hasPermission('subscribers')) {
+    header("Location: dashboard.php");
+    exit();
+}
 
 require_once __DIR__ . '/../models/MailingList.php';
 
@@ -11,10 +15,9 @@ $success = '';
 $error = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['send_newsletter'])) {
+    require_csrf_token();
     $subject = sanitize_input($_POST['subject'] ?? '');
-    // Using $_POST directly for body to allow HTML, but be cautious.
-    // In a real scenario, use a rich text editor and sanitize appropriately.
-    $body = $_POST['body'] ?? '';
+    $body = sanitize_rich_html($_POST['body'] ?? '');
 
     if (empty($subject) || empty($body)) {
         $error = "Subject and body are required.";
@@ -57,6 +60,7 @@ include_once __DIR__ . '/admin_header.php';
   <?php endif; ?>
 
   <form method="POST" action="newsletters.php" class="admin-form">
+    <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(generate_csrf_token()) ?>">
     <div class="form-group">
       <label>Email Subject</label>
       <input type="text" name="subject" required placeholder="e.g., Monthly Foundation Updates">

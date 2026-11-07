@@ -178,19 +178,42 @@ class Event {
             throw new Exception("Event not found.");
         }
 
-        // Generate unique ticket code
-        $ticket_code = 'WF-EVT-' . strtoupper(substr(uniqid(), -6));
+        // Generate cryptographically secure unique ticket code
+        $ticket_code = 'WF-EVT-' . strtoupper(bin2hex(random_bytes(4)));
 
-        $stmt = $this->db->prepare("INSERT INTO event_registrations (event_id, name, email, phone, payment_status, tx_ref, ticket_code) VALUES (:event_id, :name, :email, :phone, :payment_status, :tx_ref, :ticket_code)");
-        $result = $stmt->execute([
-            'event_id' => $event_id,
-            'name' => $name,
-            'email' => $email,
-            'phone' => $phone,
-            'payment_status' => $payment_status,
-            'tx_ref' => $tx_ref,
-            'ticket_code' => $ticket_code
-        ]);
+        $inTransaction = $this->db->inTransaction();
+        if (!$inTransaction) {
+            $this->db->beginTransaction();
+        }
+        try {
+            if (!empty($tx_ref)) {
+                $txCheck = $this->db->prepare("SELECT id FROM event_registrations WHERE tx_ref = :tx_ref FOR UPDATE");
+                $txCheck->execute(['tx_ref' => $tx_ref]);
+                if ($txCheck->fetch()) {
+                    throw new Exception("This payment has already been processed.");
+                }
+            }
+
+            $stmt = $this->db->prepare("INSERT INTO event_registrations (event_id, name, email, phone, payment_status, tx_ref, ticket_code) VALUES (:event_id, :name, :email, :phone, :payment_status, :tx_ref, :ticket_code)");
+            $result = $stmt->execute([
+                'event_id' => $event_id,
+                'name' => $name,
+                'email' => $email,
+                'phone' => $phone,
+                'payment_status' => $payment_status,
+                'tx_ref' => $tx_ref,
+                'ticket_code' => $ticket_code
+            ]);
+            $insertId = $this->db->lastInsertId();
+            if (!$inTransaction) {
+                $this->db->commit();
+            }
+        } catch (Exception $e) {
+            if (!$inTransaction && $this->db->inTransaction()) {
+                $this->db->rollBack();
+            }
+            throw $e;
+        }
 
         if ($result) {
             // Send confirmation email
@@ -218,7 +241,7 @@ class Event {
 
             $body = "<h2>Dear $name,</h2><p>Your seat has been successfully confirmed for <b>$event_title</b>!</p>$ticket_html<p><b>Event Details:</b><br>$payment_info_html📅 Date: $event_date<br>🕒 Time: $event_time<br>📍 Location: $event_location</p><p>We look forward to seeing you there! A reminder email will be sent to you before event starts.</p><p>Warm regards,<br>Wiloty Foundation Team</p>";
             send_email($email, $subject, $body);
-            return $this->db->lastInsertId();
+            return $insertId;
         }
         return false;
     }
@@ -226,9 +249,10 @@ class Event {
     // Get registration list for an event
     public function getRegistrations($event_id, $search_query = '') {
         if (!empty($search_query)) {
-            $stmt = $this->db->prepare("SELECT * FROM event_registrations WHERE event_id = :event_id AND (name LIKE :q OR ticket_code LIKE :q) ORDER BY registered_at DESC");
-            $val = '%' . $search_query . '%';
-            $stmt->execute(['event_id' => $event_id, 'q' => $val]);
+            $escaped = addcslashes($search_query, '%_\\');
+            $stmt = $this->db->prepare("SELECT * FROM event_registrations WHERE event_id = :event_id AND (name LIKE :q ESCAPE '\\\\' OR ticket_code LIKE :q2 ESCAPE '\\\\') ORDER BY registered_at DESC");
+            $val = '%' . $escaped . '%';
+            $stmt->execute(['event_id' => $event_id, 'q' => $val, 'q2' => $val]);
         } else {
             $stmt = $this->db->prepare("SELECT * FROM event_registrations WHERE event_id = :event_id ORDER BY registered_at DESC");
             $stmt->execute(['event_id' => $event_id]);
@@ -283,10 +307,11 @@ class Event {
 
     // Search for paid tickets matching a ticket code suffix
     public function searchPaidTickets($event_id, $code_suffix) {
-        $stmt = $this->db->prepare("SELECT * FROM event_registrations WHERE event_id = :event_id AND payment_status = 'completed' AND ticket_code LIKE :suffix ORDER BY registered_at DESC");
+        $escaped_suffix = addcslashes($code_suffix, '%_\\');
+        $stmt = $this->db->prepare("SELECT * FROM event_registrations WHERE event_id = :event_id AND payment_status = 'completed' AND ticket_code LIKE :suffix ESCAPE '\\\\' ORDER BY registered_at DESC");
         $stmt->execute([
             'event_id' => $event_id,
-            'suffix' => '%' . $code_suffix
+            'suffix' => '%' . $escaped_suffix
         ]);
         return $stmt->fetchAll();
     }

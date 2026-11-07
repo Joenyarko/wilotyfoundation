@@ -5,9 +5,7 @@
 require_once __DIR__ . '/../config/config.php';
 require_once __DIR__ . '/../models/Admin.php';
 
-if (session_status() == PHP_SESSION_NONE) {
-    session_start();
-}
+init_secure_session();
 
 if (!isset($_SESSION['pending_reset_id'])) {
     header("Location: login.php");
@@ -31,30 +29,40 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $old_password = $_POST['old_password'] ?? '';
     $new_password = $_POST['new_password'] ?? '';
     $confirm_password = $_POST['confirm_password'] ?? '';
+    $csrf_token = $_POST['csrf_token'] ?? '';
 
-    // Verify old password
-    $db = Database::getInstance()->getConnection();
-    $stmt = $db->prepare("SELECT password_hash FROM admins WHERE id = :id");
-    $stmt->execute(['id' => $user_id]);
-    $current_hash = $stmt->fetchColumn();
-
-    if (!password_verify($old_password, $current_hash)) {
-        $error = "The old/temporary password you entered is incorrect.";
-    } elseif (strlen($new_password) < 6) {
-        $error = "Your new password must be at least 6 characters long.";
-    } elseif ($new_password !== $confirm_password) {
-        $error = "The new passwords do not match. Please try again.";
+    if (!check_rate_limit('admin_reset_pw', 5, 300)) {
+        $error = "Too many password reset attempts. Please wait 5 minutes and try again.";
+    } elseif (!verify_csrf_token($csrf_token)) {
+        $error = "CSRF security check failed. Please refresh and try again.";
     } else {
-        if ($adminModel->updatePassword($user_id, $new_password)) {
-            // Password updated successfully! Remove pending reset and redirect to login
-            unset($_SESSION['pending_reset_id']);
-            unset($_SESSION['pending_reset_username']);
-            $success = "Password successfully updated! You can now log in securely.";
+        // Verify old password
+        $db = Database::getInstance()->getConnection();
+        $stmt = $db->prepare("SELECT password_hash FROM admins WHERE id = :id");
+        $stmt->execute(['id' => $user_id]);
+        $current_hash = $stmt->fetchColumn();
+
+        if (!$current_hash || !password_verify($old_password, $current_hash)) {
+            $error = "The old/temporary password you entered is incorrect.";
+        } elseif (strlen($new_password) < 12) {
+            $error = "Your new password must be at least 12 characters long.";
+        } elseif ($new_password !== $confirm_password) {
+            $error = "The new passwords do not match. Please try again.";
         } else {
-            $error = "An error occurred while updating your password. Please try again.";
+            if ($adminModel->updatePassword($user_id, $new_password)) {
+                session_regenerate_id(true);
+                // Password updated successfully! Remove pending reset and redirect to login
+                unset($_SESSION['pending_reset_id']);
+                unset($_SESSION['pending_reset_username']);
+                $success = "Password successfully updated! You can now log in securely.";
+            } else {
+                $error = "An error occurred while updating your password. Please try again.";
+            }
         }
     }
 }
+
+$csrf_token = generate_csrf_token();
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -176,6 +184,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <?php else: ?>
 
   <form method="POST" action="reset_password.php">
+    <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrf_token) ?>">
     <div class="form-group">
       <label for="old_password">Current Temporary Password</label>
       <input type="password" id="old_password" name="old_password" required placeholder="Enter the password you were given">
@@ -183,7 +192,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     <div class="form-group" style="margin-top: 30px;">
       <label for="new_password">Create New Password</label>
-      <input type="password" id="new_password" name="new_password" required placeholder="At least 6 characters">
+      <input type="password" id="new_password" name="new_password" required minlength="12" placeholder="At least 12 characters">
     </div>
 
     <div class="form-group">

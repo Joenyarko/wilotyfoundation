@@ -3,3 +3,5 @@ cache/
 .env
 uploads/*
 !uploads/.gitkeep
+!uploads/.htaccess
+.agents/

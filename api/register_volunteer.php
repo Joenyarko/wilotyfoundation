@@ -2,18 +2,22 @@
 // api/register_volunteer.php
 // AJAX API endpoint for volunteer registrations
 
-header("Content-Type: application/json");
-header("Access-Control-Allow-Origin: *");
-header("Access-Control-Allow-Methods: POST");
-header("Access-Control-Allow-Headers: Content-Type");
-
 require_once __DIR__ . '/../config/config.php';
 require_once __DIR__ . '/../models/Volunteer.php';
 require_once __DIR__ . '/../config/Mailer.php';
 
+header("Content-Type: application/json");
+send_api_cors_headers("POST");
+
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     http_response_code(405);
     echo json_encode(["success" => false, "message" => "Method Not Allowed"]);
+    exit();
+}
+
+if (!check_rate_limit('api_register_volunteer', 5, 60)) {
+    http_response_code(429);
+    echo json_encode(["success" => false, "message" => "Too many requests. Please wait a minute and try again."]);
     exit();
 }
 

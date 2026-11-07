@@ -4,6 +4,10 @@
 
 require_once __DIR__ . '/../models/Admin.php';
 Admin::protect();
+if (!Admin::hasPermission('donations')) {
+    header("Location: dashboard.php");
+    exit();
+}
 
 $settings_file = __DIR__ . '/../config/impact_settings.json';
 $success = '';
@@ -24,6 +28,7 @@ if (file_exists($settings_file)) {
 
 // Handle form submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_settings'])) {
+    require_csrf_token();
     $mode = $_POST['mode'] ?? 'general';
     $title = trim($_POST['active_project_title'] ?? '');
     $text = trim($_POST['active_project_text'] ?? '');
@@ -65,6 +70,7 @@ include_once __DIR__ . '/admin_header.php';
   <?php endif; ?>
 
   <form method="POST" action="impact_settings.php" class="admin-form">
+    <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(generate_csrf_token()) ?>">
     <div class="admin-form-group">
       <label>Impact Mode</label>
       <select name="mode" id="impact_mode" onchange="toggleProjectFields()" style="width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 8px;">

@@ -93,8 +93,8 @@ if (!empty($all_recent)) {
     </div>
 
     <?php 
-    // Use nl2br to preserve paragraph line-breaks, while still allowing HTML rendering
-    echo nl2br($blog['content']); 
+    // Use nl2br to preserve paragraph line-breaks, while sanitizing rich HTML against XSS
+    echo nl2br(sanitize_rich_html($blog['content'])); 
     ?>
 
     <div class="blog-detail-socials" style="margin-top: 30px;">

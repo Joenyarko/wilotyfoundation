@@ -1,9 +1,25 @@
 <?php
-ini_set('display_errors', 1);
-error_reporting(E_ALL);
+// test_mail.php
+// Restricted SMTP diagnostic tool (Superadmin & CLI only)
 
 require_once __DIR__ . '/config/config.php';
+require_once __DIR__ . '/models/Admin.php';
 require_once __DIR__ . '/config/Mailer.php';
+
+if (php_sapi_name() !== 'cli') {
+    Admin::protect();
+    if (($_SESSION['admin_role'] ?? '') !== 'superadmin') {
+        http_response_code(403);
+        exit('Forbidden: Superadmin access required.');
+    }
+    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+        $csrf_token = generate_csrf_token();
+        echo "<h1>SMTP Diagnostic Tool</h1>";
+        echo "<form method='POST'><input type='hidden' name='csrf_token' value='" . htmlspecialchars($csrf_token) . "'><button type='submit'>Run SMTP Diagnostic</button></form>";
+        exit();
+    }
+    require_csrf_token();
+}
 
 echo "<h1>SMTP Diagnostic Tool</h1>";
 
@@ -21,5 +37,6 @@ try {
         echo "<p>Check the server error log for PHPMailer exact error details.</p>";
     }
 } catch (Exception $e) {
-    echo "<p style='color:red;'>Exception caught: " . $e->getMessage() . "</p>";
+    error_log("SMTP Diagnostic Error: " . $e->getMessage());
+    echo "<p style='color:red;'>An internal error occurred. Please check the server error log.</p>";
 }

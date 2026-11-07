@@ -1,0 +1,4 @@
+# Deny direct web access to configuration files
+Options -Indexes
+Require all denied
+

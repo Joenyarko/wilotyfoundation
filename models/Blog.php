@@ -13,6 +13,7 @@ class Blog {
 
     // Insert a new blog post
     public function create($title, $summary, $content, $image_url = null, $is_featured = 0) {
+        $content = sanitize_rich_html($content);
         // If this post is set as featured, reset others if needed, or maintain multiple featured
         $stmt = $this->db->prepare("INSERT INTO blogs (title, summary, content, image_url, is_featured) VALUES (:title, :summary, :content, :image_url, :is_featured)");
         $result = $stmt->execute([
@@ -71,6 +72,7 @@ class Blog {
 
     // Update an existing blog post
     public function update($id, $title, $summary, $content, $image_url = null, $is_featured = 0) {
+        $content = sanitize_rich_html($content);
         if ($image_url !== null) {
             $stmt = $this->db->prepare("UPDATE blogs SET title = :title, summary = :summary, content = :content, image_url = :image_url, is_featured = :is_featured WHERE id = :id");
             $params = [

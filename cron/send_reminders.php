@@ -77,5 +77,6 @@ try {
     echo "SUCCESS [" . date("Y-m-d H:i:s") . "]: Automated reminder run complete. Sent {$emailCount} reminder emails.\n";
 
 } catch (Exception $e) {
-    echo "ERROR: " . $e->getMessage() . "\n";
+    error_log("Send reminders error: " . $e->getMessage());
+    echo "ERROR: An internal error occurred while sending reminders.\n";
 }

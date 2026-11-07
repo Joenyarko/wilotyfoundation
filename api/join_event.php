@@ -2,17 +2,21 @@
 // api/join_event.php
 // AJAX API endpoint for event registration joins
 
-header("Content-Type: application/json");
-header("Access-Control-Allow-Origin: *");
-header("Access-Control-Allow-Methods: POST");
-header("Access-Control-Allow-Headers: Content-Type");
-
 require_once __DIR__ . '/../config/config.php';
 require_once __DIR__ . '/../models/Event.php';
+
+header("Content-Type: application/json");
+send_api_cors_headers("POST");
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     http_response_code(405);
     echo json_encode(["success" => false, "message" => "Method Not Allowed"]);
+    exit();
+}
+
+if (!check_rate_limit('api_join_event', 10, 60)) {
+    http_response_code(429);
+    echo json_encode(["success" => false, "message" => "Too many registration attempts. Please wait a moment and try again."]);
     exit();
 }
 
@@ -76,7 +80,13 @@ try {
         }
 
         $result = json_decode($response_json, true);
-        if (!$result || !isset($result['status']) || $result['status'] !== true || $result['data']['status'] !== 'success') {
+        if (
+            !$result ||
+            !isset($result['status']) ||
+            $result['status'] !== true ||
+            ($result['data']['status'] ?? '') !== 'success' ||
+            strtoupper($result['data']['currency'] ?? '') !== 'GHS'
+        ) {
             throw new Exception("Payment verification failed. If you were charged, please contact support.");
         }
 

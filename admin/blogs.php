@@ -23,87 +23,67 @@ if ($edit_id > 0) {
     $edit_blog = $blogModel->getById($edit_id);
 }
 
-// Process CRUD actions
+// Process CRUD actions (all state-changing operations require POST + CSRF token)
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $op = sanitize_input($_POST['operation'] ?? '');
-    
-    $title = sanitize_input($_POST['title'] ?? '');
-    $summary = sanitize_input($_POST['summary'] ?? '');
-    // Content might contain HTML from text editor, sanitize tags but keep markup structures
-    $content = $_POST['content'] ?? '';
-    $is_featured = isset($_POST['is_featured']) ? 1 : 0;
-    
-    // Manage image file upload
-    $image_url = null;
-    if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
-        $fileTmpPath = $_FILES['image']['tmp_path'] ?? $_FILES['image']['tmp_name'];
-        $fileName = $_FILES['image']['name'];
-        $fileSize = $_FILES['image']['size'];
-        $fileType = $_FILES['image']['type'];
-        
-        $fileNameCmps = explode(".", $fileName);
-        $fileExtension = strtolower(end($fileNameCmps));
-        
-        $allowedExtensions = ['jpg', 'jpeg', 'png', 'webp', 'gif'];
-        
-        if (in_array($fileExtension, $allowedExtensions)) {
-            // Secure filename generation
-            $newFileName = md5(time() . $fileName) . '.' . $fileExtension;
-            $dest_path = UPLOAD_DIR . $newFileName;
-            
-            if (move_uploaded_file($fileTmpPath, $dest_path)) {
-                $image_url = 'uploads/' . $newFileName;
-            } else {
-                $error = "There was an error moving the uploaded banner image.";
-            }
+    require_csrf_token();
+    $op = sanitize_input($_POST['operation'] ?? $_POST['op'] ?? $_GET['op'] ?? '');
+    $post_id = (int)($_POST['id'] ?? $edit_id);
+
+    if ($op === 'delete' && $post_id > 0) {
+        if ($blogModel->delete($post_id)) {
+            $success = "Blog post deleted successfully!";
         } else {
-            $error = "Upload failed. Allowed image extensions: JPG, JPEG, PNG, WEBP, GIF.";
+            $error = "Failed to delete blog post.";
         }
-    }
+        $action = 'list';
+    } else {
+        $title = sanitize_input($_POST['title'] ?? '');
+        $summary = sanitize_input($_POST['summary'] ?? '');
+        // Content contains HTML from rich text editor: sanitize against XSS using allowlist
+        $content = sanitize_rich_html($_POST['content'] ?? '');
+        $is_featured = isset($_POST['is_featured']) ? 1 : 0;
+        
+        // Manage secure image file upload
+        $image_url = handle_secure_image_upload($_FILES['image'] ?? null, $error);
 
-    if (empty($error)) {
-        $title_length = strlen(trim($title));
+        if (empty($error)) {
+            $title_length = strlen(trim($title));
 
-        if ($op === 'add') {
-            if ($title_length > 120) {
-                $error = "Blog Title cannot exceed 120 characters.";
-            } elseif (empty($title) || empty($summary) || empty($content)) {
-                $error = "Please fill in all the required fields.";
-            } elseif (empty($image_url)) {
-                $error = "A banner image is strictly required to publish a new blog post.";
-            } else {
-                $img = $image_url !== null ? $image_url : null;
-                if ($blogModel->create($title, $summary, $content, $img, $is_featured)) {
-                    $success = "Blog post created successfully!";
-                    $action = 'list';
+            if ($op === 'add') {
+                if ($title_length > 120) {
+                    $error = "Blog Title cannot exceed 120 characters.";
+                } elseif (empty($title) || empty($summary) || empty($content)) {
+                    $error = "Please fill in all the required fields.";
+                } elseif (empty($image_url)) {
+                    $error = "A banner image is strictly required to publish a new blog post.";
                 } else {
-                    $error = "Failed to create blog post. Please check database logs.";
+                    $img = $image_url !== null ? $image_url : null;
+                    if ($blogModel->create($title, $summary, $content, $img, $is_featured)) {
+                        $success = "Blog post created successfully!";
+                        $action = 'list';
+                    } else {
+                        $error = "Failed to create blog post. Please check database logs.";
+                    }
                 }
-            }
-        } elseif ($op === 'edit' && $edit_id > 0) {
-            if ($title_length > 120) {
-                $error = "Blog Title cannot exceed 120 characters.";
-            } elseif (empty($title) || empty($summary) || empty($content)) {
-                $error = "Please fill in all the required fields.";
-            } else {
-                if ($blogModel->update($edit_id, $title, $summary, $content, $image_url, $is_featured)) {
-                    $success = "Blog post updated successfully!";
-                    $action = 'list';
+            } elseif ($op === 'edit' && $edit_id > 0) {
+                if ($title_length > 120) {
+                    $error = "Blog Title cannot exceed 120 characters.";
+                } elseif (empty($title) || empty($summary) || empty($content)) {
+                    $error = "Please fill in all the required fields.";
                 } else {
-                    $error = "Failed to update blog post.";
+                    if ($blogModel->update($edit_id, $title, $summary, $content, $image_url, $is_featured)) {
+                        $success = "Blog post updated successfully!";
+                        $action = 'list';
+                    } else {
+                        $error = "Failed to update blog post.";
+                    }
                 }
             }
         }
     }
 }
 
-// Process direct Delete operations
-if ($action === 'delete' && $edit_id > 0) {
-    if ($blogModel->delete($edit_id)) {
-        $success = "Blog post deleted successfully!";
-    } else {
-        $error = "Failed to delete blog post.";
-    }
+if ($action === 'delete') {
     $action = 'list';
 }
 
@@ -274,6 +254,7 @@ include_once __DIR__ . '/admin_header.php';
     });
     </script>
     <form method="POST" action="blogs.php<?= $action === 'edit' ? '?op=edit&id=' . $edit_id : '' ?>" enctype="multipart/form-data" style="margin-top: 25px;" onsubmit="return validateBlogWords(this);">
+      <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(generate_csrf_token()) ?>">
       <input type="hidden" name="operation" value="<?= $action ?>">
       
       <div class="admin-form-group">
@@ -290,7 +271,7 @@ include_once __DIR__ . '/admin_header.php';
         <label for="content">Body Content</label>
         <input type="hidden" id="content" name="content">
         <div id="editor-container" style="height: 350px; background: #fff; font-family: 'Poppins', sans-serif; font-size: 15px; border-radius: 0 0 10px 10px;">
-          <?= $action === 'edit' ? $edit_blog['content'] : '' ?>
+          <?= $action === 'edit' ? sanitize_rich_html($edit_blog['content']) : '' ?>
         </div>
       </div>
 

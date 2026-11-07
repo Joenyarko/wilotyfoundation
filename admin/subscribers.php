@@ -13,12 +13,13 @@ require_once __DIR__ . '/../models/Subscriber.php';
 
 $subModel = new Subscriber();
 
-// Process unsubscribe or deletion actions
-if (isset($_GET['action']) && isset($_GET['id'])) {
-    $id = (int)$_GET['id'];
-    $action = sanitize_input($_GET['action']);
+// Process deletion actions (requires POST + valid CSRF token)
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    require_csrf_token();
+    $id = (int)($_POST['id'] ?? $_GET['id'] ?? 0);
+    $action = sanitize_input($_POST['action'] ?? $_GET['action'] ?? '');
     
-    if ($action === 'delete') {
+    if ($id > 0 && $action === 'delete') {
         $subModel->delete($id);
     }
     
@@ -99,7 +100,11 @@ function exportCSV() {
     let row = [], cols = rows[i].querySelectorAll("td, th");
     
     for (let j = 0; j < cols.length - 1; j++) { // omit Action column
-      let data = cols[j].innerText.replace(/(\r\n|\n|\r)/gm, "").replace(/(\s\s)/gm, " ");
+      let data = cols[j].innerText.replace(/(\r\n|\n|\r)/gm, "").replace(/(\s\s)/gm, " ").trim();
+      // Guard against CSV Formula Injection (=, +, -, @)
+      if (/^[=+\-@]/.test(data)) {
+        data = "'" + data;
+      }
       data = data.replace(/"/g, '""');
       row.push('"' + data + '"');
     }

@@ -6,6 +6,8 @@ require_once __DIR__ . '/../config/db.php';
 
 class Admin {
     private $db;
+    private static $allowed_roles = ['admin', 'superadmin'];
+    private static $allowed_permissions = ['donations', 'volunteers', 'blogs', 'events', 'subscribers'];
 
     public function __construct() {
         $this->db = Database::getInstance()->getConnection();
@@ -13,11 +15,14 @@ class Admin {
 
     // Authenticate Admin login credentials
     public function login($username, $password) {
+        init_secure_session();
         $stmt = $this->db->prepare("SELECT * FROM admins WHERE username = :username LIMIT 1");
         $stmt->execute(['username' => $username]);
         $admin = $stmt->fetch();
 
         if ($admin && password_verify($password, $admin['password_hash'])) {
+            session_regenerate_id(true);
+
             if ($admin['must_reset_password']) {
                 $_SESSION['pending_reset_id'] = $admin['id'];
                 $_SESSION['pending_reset_username'] = $admin['username'];
@@ -38,23 +43,19 @@ class Admin {
 
     // Check if current logged-in user has permission
     public static function hasPermission($section) {
-        if (session_status() == PHP_SESSION_NONE) {
-            session_start();
-        }
+        init_secure_session();
         $role = $_SESSION['admin_role'] ?? 'admin';
         if ($role === 'superadmin') {
             return true; // Superadmin has access to everything
         }
         
         $permissions = $_SESSION['admin_permissions'] ?? [];
-        return in_array($section, $permissions);
+        return is_array($permissions) && in_array($section, $permissions, true);
     }
 
     // Terminate Admin Session
     public static function logout() {
-        if (session_status() == PHP_SESSION_NONE) {
-            session_start();
-        }
+        init_secure_session();
         $_SESSION = array();
         if (ini_get("session.use_cookies")) {
             $params = session_get_cookie_params();
@@ -68,25 +69,43 @@ class Admin {
 
     // Enforce Dashboard Protection
     public static function protect() {
-        if (session_status() == PHP_SESSION_NONE) {
-            session_start();
-        }
+        init_secure_session();
         if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== true) {
             header("Location: login.php");
             exit();
         }
     }
 
-    // Create a new Administrator Account
-    public function create($username, $email, $full_name, $phone, $role = 'admin', $permissions = []) {
+    private function sanitizeRoleAndPermissions($role, $permissions) {
+        $validRole = in_array($role, self::$allowed_roles, true) ? $role : 'admin';
+        $validPerms = [];
+        if (is_array($permissions)) {
+            foreach ($permissions as $perm) {
+                if (is_string($perm) && in_array($perm, self::$allowed_permissions, true)) {
+                    $validPerms[] = $perm;
+                }
+            }
+        }
+        return [$validRole, array_values(array_unique($validPerms))];
+    }
+
+    private function generateSecureRandomPassword($length = 16) {
         $chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$';
         $random_password = '';
-        for ($i = 0; $i < 10; $i++) {
-            $random_password .= $chars[random_int(0, strlen($chars) - 1)];
+        $maxIdx = strlen($chars) - 1;
+        for ($i = 0; $i < $length; $i++) {
+            $random_password .= $chars[random_int(0, $maxIdx)];
         }
+        return $random_password;
+    }
+
+    // Create a new Administrator Account
+    public function create($username, $email, $full_name, $phone, $role = 'admin', $permissions = []) {
+        list($validRole, $validPerms) = $this->sanitizeRoleAndPermissions($role, $permissions);
+        $random_password = $this->generateSecureRandomPassword(16);
         $password_hash = password_hash($random_password, PASSWORD_BCRYPT);
         
-        $permissions_json = json_encode($permissions);
+        $permissions_json = json_encode($validPerms);
         $stmt = $this->db->prepare("INSERT INTO admins (username, email, full_name, phone, password_hash, role, permissions, must_reset_password) VALUES (:username, :email, :full_name, :phone, :password_hash, :role, :permissions, 1)");
         
         if ($stmt->execute([
@@ -95,7 +114,7 @@ class Admin {
             'full_name' => $full_name,
             'phone' => $phone,
             'password_hash' => $password_hash,
-            'role' => $role,
+            'role' => $validRole,
             'permissions' => $permissions_json
         ])) {
             return $random_password;
@@ -105,7 +124,8 @@ class Admin {
 
     // Update an existing Administrator Account
     public function update($id, $username, $email, $full_name, $phone, $role = 'admin', $permissions = []) {
-        $permissions_json = json_encode($permissions);
+        list($validRole, $validPerms) = $this->sanitizeRoleAndPermissions($role, $permissions);
+        $permissions_json = json_encode($validPerms);
         
         $stmt = $this->db->prepare("UPDATE admins SET username = :username, email = :email, full_name = :full_name, phone = :phone, role = :role, permissions = :permissions WHERE id = :id");
         return $stmt->execute([
@@ -113,7 +133,7 @@ class Admin {
             'email' => $email,
             'full_name' => $full_name,
             'phone' => $phone,
-            'role' => $role,
+            'role' => $validRole,
             'permissions' => $permissions_json,
             'id' => $id
         ]);
@@ -121,11 +141,7 @@ class Admin {
 
     // Generate random password and force reset
     public function forceResetPassword($id) {
-        $chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$';
-        $random_password = '';
-        for ($i = 0; $i < 10; $i++) {
-            $random_password .= $chars[random_int(0, strlen($chars) - 1)];
-        }
+        $random_password = $this->generateSecureRandomPassword(16);
         $password_hash = password_hash($random_password, PASSWORD_BCRYPT);
         
         $stmt = $this->db->prepare("UPDATE admins SET password_hash = :password_hash, must_reset_password = 1 WHERE id = :id");

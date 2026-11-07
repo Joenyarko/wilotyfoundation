@@ -13,21 +13,24 @@ require_once __DIR__ . '/../models/Volunteer.php';
 
 $volunteerModel = new Volunteer();
 
-// Process approval / rejection actions
-if (isset($_GET['action']) && isset($_GET['id'])) {
-    $id = (int)$_GET['id'];
-    $action = sanitize_input($_GET['action']);
+// Process approval / rejection / deletion actions (requires POST + valid CSRF token)
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    require_csrf_token();
+    $id = (int)($_POST['id'] ?? $_GET['id'] ?? 0);
+    $action = sanitize_input($_POST['action'] ?? $_GET['action'] ?? '');
     
-    if ($action === 'approve') {
-        $volunteerModel->updateStatus($id, 'approved');
-    } elseif ($action === 'reject') {
-        $volunteerModel->updateStatus($id, 'rejected');
-    } elseif ($action === 'delete') {
-        $volunteerModel->delete($id);
+    if ($id > 0) {
+        if ($action === 'approve') {
+            $volunteerModel->updateStatus($id, 'approved');
+        } elseif ($action === 'reject') {
+            $volunteerModel->updateStatus($id, 'rejected');
+        } elseif ($action === 'delete') {
+            $volunteerModel->delete($id);
+        }
     }
     
     header("Location: volunteers.php");
-    $action = 'list';
+    exit();
 }
 
 $page = isset($_GET['page']) ? max(1, (int)$_GET['page']) : 1;

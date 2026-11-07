@@ -29,103 +29,93 @@ if ($edit_id > 0) {
     $edit_event = $eventModel->getById($edit_id);
 }
 
-// Process CRUD actions
+// Process CRUD actions (all state-changing operations require POST + CSRF token)
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $op = sanitize_input($_POST['operation'] ?? '');
-    
-    $title = sanitize_input($_POST['title'] ?? '');
-    $description = sanitize_input($_POST['description'] ?? '');
-    $location = sanitize_input($_POST['location'] ?? '');
-    $date = sanitize_input($_POST['date'] ?? '');
-    $time = sanitize_input($_POST['time'] ?? '');
-    $is_free = isset($_POST['is_free']) ? (int)$_POST['is_free'] : 1;
-    $price = (isset($_POST['price']) && $_POST['price'] !== '') ? (float)$_POST['price'] : null;
-    
-    // Manage image file upload
-    $image_url = null;
-    if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
-        $fileTmpPath = $_FILES['image']['tmp_path'] ?? $_FILES['image']['tmp_name'];
-        $fileName = $_FILES['image']['name'];
-        $fileSize = $_FILES['image']['size'];
-        $fileType = $_FILES['image']['type'];
-        
-        $fileNameCmps = explode(".", $fileName);
-        $fileExtension = strtolower(end($fileNameCmps));
-        
-        $allowedExtensions = ['jpg', 'jpeg', 'png', 'webp', 'gif'];
-        
-        if (in_array($fileExtension, $allowedExtensions)) {
-            $newFileName = md5(time() . $fileName) . '.' . $fileExtension;
-            $dest_path = UPLOAD_DIR . $newFileName;
-            
-            if (move_uploaded_file($fileTmpPath, $dest_path)) {
-                $image_url = 'uploads/' . $newFileName;
-            } else {
-                $error = "There was an error moving the uploaded flyer.";
-            }
-        } else {
-            $error = "Upload failed. Allowed image extensions: JPG, JPEG, PNG, WEBP, GIF.";
-        }
-    }
+    require_csrf_token();
+    $op = sanitize_input($_POST['operation'] ?? $_POST['op'] ?? $_GET['op'] ?? '');
+    $post_id = (int)($_POST['id'] ?? $edit_id);
 
-    if (empty($error)) {
-        $desc_length = strlen(trim($description));
-        $title_length = strlen(trim($title));
-        $loc_length = strlen(trim($location));
+    if ($op === 'delete' && $post_id > 0) {
+        if ($eventModel->delete($post_id)) {
+            header("Location: events.php?success_msg=" . urlencode("Event deleted successfully!"));
+            exit;
+        } else {
+            $error = "Failed to delete event.";
+        }
+        $action = 'list';
+    } elseif ($op === 'send_reminder' && $post_id > 0) {
+        $sentCount = $eventModel->sendReminder($post_id);
+        if ($sentCount !== false) {
+            header("Location: events.php?op=view_joiners&id=" . $post_id . "&success_msg=" . urlencode("Reminders queued for $sentCount participant(s)!"));
+            exit;
+        } else {
+            $error = "Failed to send reminders. Event might not exist.";
+            $action = 'view_joiners';
+        }
+    } else {
+        $title = sanitize_input($_POST['title'] ?? '');
+        $description = sanitize_input($_POST['description'] ?? '');
+        $location = sanitize_input($_POST['location'] ?? '');
+        $date = sanitize_input($_POST['date'] ?? '');
+        $time = sanitize_input($_POST['time'] ?? '');
+        $is_free = isset($_POST['is_free']) ? (int)$_POST['is_free'] : 1;
+        $price = (isset($_POST['price']) && $_POST['price'] !== '') ? (float)$_POST['price'] : null;
         
-        if ($op === 'add') {
-            if ($title_length > 150) {
-                $error = "Event Title cannot exceed 150 characters.";
-            } elseif ($loc_length > 100) {
-                $error = "Event Location cannot exceed 100 characters.";
-            } elseif ($desc_length > 150) {
-                $error = "Event Description cannot exceed 150 letters. Please shorten it.";
-            } elseif ($is_free === '0' && (empty($price) || !is_numeric($price) || $price <= 0)) {
-                $error = "You must enter a valid price for paid events.";
-            } elseif (empty($title) || empty($description) || empty($location)) {
-                $error = "Please fill in all the required fields.";
-            } elseif (empty($image_url)) {
-                $error = "A cover / flyer image is strictly required to schedule a new event.";
-            } else {
-                $img = $image_url !== null ? $image_url : null;
-                if ($eventModel->create($title, $description, $location, $date, $time, $is_free, $price, $img)) {
-                    header("Location: events.php?success_msg=" . urlencode("Event scheduled successfully!"));
-                    exit;
+        // Manage secure image file upload
+        $image_url = handle_secure_image_upload($_FILES['image'] ?? null, $error);
+
+        if (empty($error)) {
+            $desc_length = strlen(trim($description));
+            $title_length = strlen(trim($title));
+            $loc_length = strlen(trim($location));
+            
+            if ($op === 'add') {
+                if ($title_length > 150) {
+                    $error = "Event Title cannot exceed 150 characters.";
+                } elseif ($loc_length > 100) {
+                    $error = "Event Location cannot exceed 100 characters.";
+                } elseif ($desc_length > 150) {
+                    $error = "Event Description cannot exceed 150 letters. Please shorten it.";
+                } elseif ($is_free === 0 && (empty($price) || !is_numeric($price) || $price <= 0)) {
+                    $error = "You must enter a valid price for paid events.";
+                } elseif (empty($title) || empty($description) || empty($location)) {
+                    $error = "Please fill in all the required fields.";
+                } elseif (empty($image_url)) {
+                    $error = "A cover / flyer image is strictly required to schedule a new event.";
                 } else {
-                    $error = "Failed to schedule event. Please check database logs.";
+                    $img = $image_url !== null ? $image_url : null;
+                    if ($eventModel->create($title, $description, $location, $date, $time, $is_free, $price, $img)) {
+                        header("Location: events.php?success_msg=" . urlencode("Event scheduled successfully!"));
+                        exit;
+                    } else {
+                        $error = "Failed to schedule event. Please check database logs.";
+                    }
                 }
-            }
-        } elseif ($op === 'edit' && $edit_id > 0) {
-            if ($title_length > 150) {
-                $error = "Event Title cannot exceed 150 characters.";
-            } elseif ($loc_length > 100) {
-                $error = "Event Location cannot exceed 100 characters.";
-            } elseif ($desc_length > 150) {
-                $error = "Event Description cannot exceed 150 letters. Please shorten it.";
-            } elseif ($is_free === '0' && (empty($price) || !is_numeric($price) || $price <= 0)) {
-                $error = "You must enter a valid price for paid events.";
-            } elseif (empty($title) || empty($description) || empty($location)) {
-                $error = "Please fill in all the required fields.";
-            } else {
-                if ($eventModel->update($edit_id, $title, $description, $location, $date, $time, $is_free, $price, $image_url)) {
-                    header("Location: events.php?success_msg=" . urlencode("Event details updated successfully!"));
-                    exit;
+            } elseif ($op === 'edit' && $edit_id > 0) {
+                if ($title_length > 150) {
+                    $error = "Event Title cannot exceed 150 characters.";
+                } elseif ($loc_length > 100) {
+                    $error = "Event Location cannot exceed 100 characters.";
+                } elseif ($desc_length > 150) {
+                    $error = "Event Description cannot exceed 150 letters. Please shorten it.";
+                } elseif ($is_free === 0 && (empty($price) || !is_numeric($price) || $price <= 0)) {
+                    $error = "You must enter a valid price for paid events.";
+                } elseif (empty($title) || empty($description) || empty($location)) {
+                    $error = "Please fill in all the required fields.";
                 } else {
-                    $error = "Failed to update event. Please check database logs.";
+                    if ($eventModel->update($edit_id, $title, $description, $location, $date, $time, $is_free, $price, $image_url)) {
+                        header("Location: events.php?success_msg=" . urlencode("Event details updated successfully!"));
+                        exit;
+                    } else {
+                        $error = "Failed to update event. Please check database logs.";
+                    }
                 }
             }
         }
     }
 }
 
-// Process direct Delete operations
-if ($action === 'delete' && $edit_id > 0) {
-    if ($eventModel->delete($edit_id)) {
-        header("Location: events.php?success_msg=" . urlencode("Event deleted successfully!"));
-        exit;
-    } else {
-        $error = "Failed to delete event.";
-    }
+if ($action === 'delete' || $action === 'send_reminder') {
     $action = 'list';
 }
 
@@ -135,18 +125,6 @@ if ($action === 'view_joiners' && $edit_id > 0) {
     $view_registrations = $eventModel->getRegistrations($edit_id, $search_query);
     if ($edit_event) {
         $selected_event_title = $edit_event['title'];
-    }
-}
-
-// Process Send Reminder operation
-if ($action === 'send_reminder' && $edit_id > 0) {
-    $sentCount = $eventModel->sendReminder($edit_id);
-    if ($sentCount !== false) {
-        header("Location: events.php?op=view_joiners&id=" . $edit_id . "&success_msg=" . urlencode("Reminders queued for $sentCount participant(s)!"));
-        exit;
-    } else {
-        $error = "Failed to send reminders. Event might not exist.";
-        $action = 'view_joiners';
     }
 }
 
@@ -336,6 +314,7 @@ include_once __DIR__ . '/admin_header.php';
     }
     </script>
     <form method="POST" action="events.php<?= $action === 'edit' ? '?op=edit&id=' . $edit_id : '' ?>" enctype="multipart/form-data" style="margin-top: 25px;" onsubmit="return validateEventWords(this);">
+      <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(generate_csrf_token()) ?>">
       <input type="hidden" name="operation" value="<?= $action ?>">
       
       <div class="admin-form-group">

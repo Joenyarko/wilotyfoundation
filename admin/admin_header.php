@@ -7,6 +7,7 @@ require_once __DIR__ . '/../models/Admin.php';
 
 // Enforce authentication check immediately
 Admin::protect();
+$csrf_token = generate_csrf_token();
 
 $current_page = basename($_SERVER['PHP_SELF']);
 ?>
@@ -15,6 +16,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="csrf-token" content="<?= htmlspecialchars($csrf_token) ?>">
   <link rel="icon" href="../assets/WhatsApp_Image_2026-03-06_at_8.22.29_AM-removebg-preview.ico" sizes="32x32">
   <title>Admin Dashboard | Wiloty Foundation</title>
   <link rel="stylesheet" href="../style.css?v=6.0" />
@@ -524,6 +526,46 @@ $current_page = basename($_SERVER['PHP_SELF']);
     }
   </style>
   <script>
+    function getCsrfToken() {
+      const meta = document.querySelector('meta[name="csrf-token"]');
+      return meta ? meta.getAttribute('content') : '';
+    }
+
+    function submitPostAction(url) {
+      const parsed = new URL(url, window.location.href);
+      const form = document.createElement('form');
+      form.method = 'POST';
+      form.action = parsed.pathname + parsed.search;
+      form.style.display = 'none';
+
+      const csrfInput = document.createElement('input');
+      csrfInput.type = 'hidden';
+      csrfInput.name = 'csrf_token';
+      csrfInput.value = getCsrfToken();
+      form.appendChild(csrfInput);
+
+      parsed.searchParams.forEach((value, key) => {
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = key;
+        input.value = value;
+        form.appendChild(input);
+      });
+
+      document.body.appendChild(form);
+      form.submit();
+    }
+
+    function buildPostFormData(url) {
+      const parsed = new URL(url, window.location.href);
+      const fd = new FormData();
+      fd.append('csrf_token', getCsrfToken());
+      parsed.searchParams.forEach((value, key) => {
+        fd.append(key, value);
+      });
+      return fd;
+    }
+
     function confirmAction(event, url, message, confirmText = 'Yes, do it!', isDanger = false) {
       event.preventDefault();
       Swal.fire({
@@ -536,7 +578,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
         confirmButtonText: confirmText
       }).then((result) => {
         if (result.isConfirmed) {
-          window.location.href = url;
+          submitPostAction(url);
         }
       });
     }
@@ -612,8 +654,8 @@ $current_page = basename($_SERVER['PHP_SELF']);
     function executeDeletion(url) {
       if (pendingDeletions.has(url)) {
         pendingDeletions.delete(url);
-        // Execute background fetch to permanently delete
-        fetch(url, { method: 'GET' }).catch(err => console.error("Deletion failed:", err));
+        // Execute background POST fetch with CSRF token to permanently delete
+        fetch(url, { method: 'POST', body: buildPostFormData(url) }).catch(err => console.error("Deletion failed:", err));
       }
     }
 
@@ -621,8 +663,8 @@ $current_page = basename($_SERVER['PHP_SELF']);
     window.addEventListener('beforeunload', () => {
       pendingDeletions.forEach((timeoutId, url) => {
         clearTimeout(timeoutId);
-        // Use sendBeacon for reliable background request on page unload
-        navigator.sendBeacon(url);
+        // Use sendBeacon with POST FormData containing CSRF token
+        navigator.sendBeacon(url, buildPostFormData(url));
       });
     });
   </script>

@@ -13,18 +13,23 @@ require_once __DIR__ . '/../models/Donation.php';
 
 $donationModel = new Donation();
 
-// Handle status update pledge change
-if (isset($_GET['action'])) {
-    $action = sanitize_input($_GET['action']);
+// Handle status update pledge change (requires POST + valid CSRF token)
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    require_csrf_token();
+    $action = sanitize_input($_POST['action'] ?? $_GET['action'] ?? '');
     
-    if ($action === 'confirm' && isset($_GET['tx_ref'])) {
-        $tx_ref = sanitize_input($_GET['tx_ref']);
-        $donationModel->updateStatus($tx_ref, 'completed');
+    if ($action === 'confirm') {
+        $tx_ref = sanitize_input($_POST['tx_ref'] ?? $_GET['tx_ref'] ?? '');
+        if (!empty($tx_ref)) {
+            $donationModel->updateStatus($tx_ref, 'completed');
+        }
         header("Location: donations.php");
         exit();
-    } elseif ($action === 'delete' && isset($_GET['id'])) {
-        $id = (int)$_GET['id'];
-        $donationModel->delete($id);
+    } elseif ($action === 'delete') {
+        $id = (int)($_POST['id'] ?? $_GET['id'] ?? 0);
+        if ($id > 0) {
+            $donationModel->delete($id);
+        }
         header("Location: donations.php");
         exit();
     }
