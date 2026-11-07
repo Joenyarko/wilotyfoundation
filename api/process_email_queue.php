@@ -10,9 +10,8 @@ require_once __DIR__ . '/../config/Mailer.php';
 header("Content-Type: application/json");
 send_api_cors_headers("GET, POST");
 
-if (php_sapi_name() !== 'cli' && !check_rate_limit('api_process_email_queue', 6, 60)) {
-    http_response_code(429);
-    echo json_encode(["success" => false, "message" => "Rate limit exceeded."]);
+if (php_sapi_name() !== 'cli' && !check_rate_limit('api_process_email_queue', 15, 60)) {
+    echo json_encode(["success" => true, "message" => "Queue check throttled."]);
     exit();
 }
 
