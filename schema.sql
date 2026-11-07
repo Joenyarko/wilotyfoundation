@@ -112,6 +112,7 @@ ON DUPLICATE KEY UPDATE `username`=`username`;
 CREATE TABLE IF NOT EXISTS `email_queue` (
   `id` INT AUTO_INCREMENT PRIMARY KEY,
   `to_email` VARCHAR(255) NOT NULL,
+  `from_email` VARCHAR(255) DEFAULT 'admin@wilotyfoundation.org',
   `subject` VARCHAR(255) NOT NULL,
   `body` LONGTEXT NOT NULL,
   `status` ENUM('pending', 'sent', 'failed') DEFAULT 'pending',

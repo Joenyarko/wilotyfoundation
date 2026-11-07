@@ -24,7 +24,11 @@ try {
     $db = Database::getInstance()->getConnection();
     
     // Use an exclusive file lock so concurrent requests never process the same emails twice
-    $lockFile = BASE_PATH . '/cache/email_queue.lock';
+    $cacheDir = BASE_PATH . '/cache';
+    if (!is_dir($cacheDir)) {
+        @mkdir($cacheDir, 0755, true);
+    }
+    $lockFile = $cacheDir . '/email_queue.lock';
     $lockFp = @fopen($lockFile, 'c');
     if ($lockFp && !flock($lockFp, LOCK_EX | LOCK_NB)) {
         fclose($lockFp);
@@ -32,8 +36,23 @@ try {
         exit();
     }
 
+    // Ensure email_queue table exists and use SELECT * to stay compatible whether or not from_email column exists
+    $db->exec("CREATE TABLE IF NOT EXISTS `email_queue` (
+        `id` INT AUTO_INCREMENT PRIMARY KEY,
+        `to_email` VARCHAR(255) NOT NULL,
+        `from_email` VARCHAR(255) DEFAULT 'admin@wilotyfoundation.org',
+        `subject` VARCHAR(255) NOT NULL,
+        `body` LONGTEXT NOT NULL,
+        `status` ENUM('pending', 'sent', 'failed') DEFAULT 'pending',
+        `attempts` INT DEFAULT 0,
+        `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        INDEX (`status`),
+        INDEX (`created_at`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
+
     // Select up to 10 pending emails (or failed emails with < 3 attempts)
-    $stmt = $db->prepare("SELECT id, to_email, subject, body, attempts, from_email FROM email_queue WHERE status = 'pending' OR (status = 'failed' AND attempts < 3) ORDER BY created_at ASC LIMIT 10");
+    $stmt = $db->prepare("SELECT * FROM email_queue WHERE status = 'pending' OR (status = 'failed' AND attempts < 3) ORDER BY created_at ASC LIMIT 10");
     $stmt->execute();
     $emails = $stmt->fetchAll(PDO::FETCH_ASSOC);
     
